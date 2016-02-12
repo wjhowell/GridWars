@@ -330,4 +330,25 @@ public class play_data : MonoBehaviour {
         }
         return -1;
     }
+
+	/// <summary>
+	/// Converts owner index integer into the owner's color.
+	/// </summary>
+	/// <returns>color representing owner</returns>
+	/// <param name="owner_number">owner index number</param>
+	static public Color OwnerIntToColor(int owner_number) {
+		switch (owner_number)
+		{
+		case 0:
+			return Color.green;
+		case 1:
+			// purple
+			return new Color(0.453f, 0.270f, 0.809f);
+		case 2:
+			return Color.red;
+		case 3:
+			return Color.yellow;
+		}
+		throw new UnityException ("Invalid owner number");
+	}
 }

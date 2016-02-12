@@ -21,8 +21,6 @@ public class Hud : MonoBehaviour {
 
     public Camera guicame;
 
-    Color purple = new Color(0.453f, 0.270f, 0.809f);
-
     // Use this for initialization
     void Start () {
         end_turn.onClick.AddListener(() => play_data.instance.next_turn());
@@ -33,21 +31,8 @@ public class Hud : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        switch (play_data.instance.whosturn)
-        {
-            case 0:
-                guicame.backgroundColor = Color.green;
-                break;
-            case 1:
-                guicame.backgroundColor=purple;
-                break;
-            case 2:
-                guicame.backgroundColor = Color.red;
-                break;
-            case 3:
-                guicame.backgroundColor = Color.yellow;
-                break;
-        }
+		// deciding color given to method: "play_data.OwnerIntToColor"
+		guicame.backgroundColor = play_data.OwnerIntToColor (play_data.instance.whosturn);
         
         location_text.text = "Row: " + play_data.instance.current_select_col.ToString() + "      Column: " + play_data.instance.current_select_row.ToString();
         if (play_data.instance.owner[play_data.instance.current_select_col, play_data.instance.current_select_row]==-1)
