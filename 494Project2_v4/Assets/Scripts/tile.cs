@@ -16,6 +16,8 @@ public class tile : MonoBehaviour {
     public float duration = 1f;
     public float alpha = 0f;
 
+	public float shake_delay = 0f;
+
 	// Use this for initialization
 	void Start () {
         instance = this;
@@ -36,6 +38,7 @@ public class tile : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		DoShake ();
 
 		if (transform.position.y<row)
 		{
@@ -111,6 +114,26 @@ public class tile : MonoBehaviour {
 
     }
 
+	/// <summary>
+	/// To be called OnUpdate.
+	/// The purpose of this function is to add a "shake" effect to
+	/// the tile. The shake effect can be activated simply by setting
+	/// the "shake_delay" field.
+	/// </summary>
+	void DoShake() {
+		// shake tile
+		if (shake_delay > 0f) {
+			shake_delay -= Time.deltaTime;
+			Vector3 scale = GetComponent<Transform> ().localScale;
+			float shake_period = 0.1f;
+			float u = (1f/shake_period) * (Time.time % shake_period);
+			if (shake_delay > 0f)
+				scale.x = scale.y = 0.8f + 0.4f * u;
+			else
+				scale.x = scale.y = 1f;
+			GetComponent<Transform> ().localScale = scale;
+		}
+	}
 
     void OnMouseDown()
     {
