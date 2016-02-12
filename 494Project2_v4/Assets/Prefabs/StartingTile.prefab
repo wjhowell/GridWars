@@ -143,6 +143,7 @@ MonoBehaviour:
   sprites: []
   duration: 1
   alpha: 0
+  shake_delay: 0
 --- !u!212 &21239330
 SpriteRenderer:
   m_ObjectHideFlags: 1
@@ -195,6 +196,10 @@ Prefab:
     - target: {fileID: 0}
       propertyPath: m_IsTrigger
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: shake_delay
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}

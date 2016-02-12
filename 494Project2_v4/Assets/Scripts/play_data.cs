@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 public enum type { Fire, Water, Earth, Empty };
+
 public struct coordinate {
     public int x;
     public int y;
@@ -24,6 +25,7 @@ public class play_data : MonoBehaviour {
     public type[,] defense_type = new type[14, 10];
     public int[,] defense = new int[14, 10];
     public bool[,] IsSelectable = new bool[14, 10];
+	public tile[,] tiles;
     //select data
     public int current_select_col;
     public int current_select_row;
@@ -78,6 +80,7 @@ public class play_data : MonoBehaviour {
         remaining = new int[cols, rows];
         defense_type = new type[cols, rows];
         defense = new int[cols, rows];
+		tiles = new tile[cols, rows];
         for (int x = 0; x != cols; ++x)
         {
             for (int y = 0; y != rows; ++y)
@@ -93,6 +96,7 @@ public class play_data : MonoBehaviour {
 				nt.col = x;
                 nt.row = y;
                 nt.owner = -1;
+				tiles [x, y] = nt;
 //				nt.gameObject.SetActive (false);
 //				StartCoroutine (genTile (nt));
             }
@@ -208,18 +212,9 @@ public class play_data : MonoBehaviour {
         {
             owner[current_select_col, current_select_row] = whosturn;  
             remaining[current_select_col, current_select_row] = 0;
-            switch (tile_type[current_select_col, current_select_row])
-            {
-                case type.Fire:
-                    player_resource[whosturn, 0] += 5;
-                    break;
-                case type.Water:
-                    player_resource[whosturn, 1] += 5;
-                    break;
-                case type.Earth:
-                    player_resource[whosturn, 2] += 5;
-                    break;
-            }
+			int type_index = type2int(tile_type [current_select_col, current_select_row]);
+			if (type_index != -1)
+				player_resource[whosturn, type_index] += 5;
             tile_type[current_select_col, current_select_row] = type.Empty;
         }
         else if (owner[current_select_col, current_select_row] == whosturn) //Fire Defense
@@ -230,20 +225,11 @@ public class play_data : MonoBehaviour {
         }
         else //Fire attack
         {
-            defense[current_select_col, current_select_row]--;
-            player_resource[whosturn, 0] -= 5;
-            if (defense[current_select_col, current_select_row]==0)
-            {
-                defense_type[current_select_col, current_select_row] = type.Empty;
-            }
-            if (defense[current_select_col, current_select_row] < 0)
-            {
-                defense[current_select_col, current_select_row] = 0;
-                owner[current_select_col, current_select_row] = whosturn;
-            }
+			DoAttack (current_select_col, current_select_row, type.Fire, whosturn);
         }
         UpdateSelectableTiles();
     }
+
     public void option_1()
     {
         moves_remain--;
@@ -281,17 +267,7 @@ public class play_data : MonoBehaviour {
         }
         else //Water attack
         { 
-            defense[current_select_col, current_select_row]--;
-            player_resource[whosturn, 1] -= 5;
-            if (defense[current_select_col, current_select_row] == 0)
-            {
-                defense_type[current_select_col, current_select_row] = type.Empty;
-            }
-            if (defense[current_select_col, current_select_row] < 0)
-            {
-                defense[current_select_col, current_select_row] = 0;
-                owner[current_select_col, current_select_row] = whosturn;
-            }
+			DoAttack (current_select_col, current_select_row, type.Water, whosturn);
         }
         UpdateSelectableTiles();
     }
@@ -306,20 +282,41 @@ public class play_data : MonoBehaviour {
         }
         else //Earth attack
         {
-            defense[current_select_col, current_select_row]--;
-            player_resource[whosturn, 2] -= 5;
-            if (defense[current_select_col, current_select_row] == 0)
-            {
-                defense_type[current_select_col, current_select_row] = type.Empty;            
-            }
-            if (defense[current_select_col, current_select_row] < 0)
-            {
-                defense[current_select_col, current_select_row] = 0;
-                owner[current_select_col, current_select_row] = whosturn;
-            }
+			DoAttack (current_select_col, current_select_row, type.Earth, whosturn);
         }
         UpdateSelectableTiles();
     }
+
+	/// <summary>
+	/// Performs an elemental attack onto a (an enemy's) tile.
+	/// :TODO: what if attacker does not have sufficient resoures to attack.
+	/// </summary>
+	/// <param name="def_col">Defender's column.</param>
+	/// <param name="def_row">Defender's row.</param>
+	/// <param name="element">Element of the attack.</param>
+	/// <param name="current_turn">Player index, for who's current turn.</param>
+	void DoAttack(int def_col, int def_row, type element, int current_turn) {
+		defense [def_col, def_row]--;
+		if (player_resource [whosturn, type2int(element)] > 0) {
+			player_resource [whosturn, type2int(element)] -= 5;
+		} else {
+			// tell player, insufficent resoures
+			// better yet, grey out the box
+			++moves_remain;
+		}
+
+		// barrier down, player takes immediately
+		if (defense[def_col, def_row] <= 0)
+		{
+			defense_type[def_col, def_row] = type.Empty;
+			defense[def_col, def_row] = 0;
+			owner[def_col, def_row] = current_turn;
+		}
+
+		// make the tile shake :)
+		tiles[def_col, def_row].shake_delay = 0.5f;
+	}
+
     int type2int(type input_type)
     {
         switch (input_type)
