@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Audio;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -16,6 +17,14 @@ public struct coordinate {
 
 public class play_data : MonoBehaviour {
     public static play_data instance;
+	//Audio
+	public AudioSource audSource;
+	public AudioClip fireball;
+	public AudioClip waterSplash;
+	public AudioClip grassCut;
+
+	public float lowPitchRange = .75F;
+	public float highPitchRange = 1.25F;
 
     public tile tilePrefab;
     //map data
@@ -53,6 +62,8 @@ public class play_data : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+		audSource = GetComponent<AudioSource> ();
+
         moves_remain = 2;
         whosturn = 0;
         instance = this;
@@ -296,6 +307,22 @@ public class play_data : MonoBehaviour {
 	/// <param name="element">Element of the attack.</param>
 	/// <param name="current_turn">Player index, for who's current turn.</param>
 	void DoAttack(int def_col, int def_row, type element, int current_turn) {
+		//Audio
+		audSource.pitch = Random.Range (lowPitchRange, highPitchRange);
+		switch (element) {
+		case type.Fire:
+			audSource.PlayOneShot (fireball, 1.0f);
+			break;
+		case type.Water:
+			audSource.PlayOneShot (waterSplash, 1.0f);
+			break;
+		case type.Earth:
+			audSource.PlayOneShot (grassCut, 1.0f);
+			break;
+		default:
+			break;
+		}
+
 		defense [def_col, def_row]--;
 		if (player_resource [whosturn, type2int(element)] > 0) {
 			player_resource [whosturn, type2int(element)] -= 5;
