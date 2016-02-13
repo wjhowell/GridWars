@@ -56,7 +56,7 @@ public class Hud : MonoBehaviour {
         }
 
         info_text.fontSize = 8;
-        info_text.text = "Player_" + play_data.instance.whosturn.ToString() + " 's turn   " + play_data.instance.moves_remain.ToString()+"/2"
+        info_text.text = "Player_" + play_data.instance.whosturn.ToString() + "'s turn   " + play_data.instance.moves_remain.ToString()+"/2"
                         + "\nFire: " + play_data.instance.player_resource[play_data.instance.whosturn, 0].ToString()+"/"+ play_data.instance.player_income[play_data.instance.whosturn, 0].ToString()
                         + "\nWater: " + play_data.instance.player_resource[play_data.instance.whosturn, 1].ToString() + "/" + play_data.instance.player_income[play_data.instance.whosturn, 1].ToString()
                         + "\nGrass: " + play_data.instance.player_resource[play_data.instance.whosturn, 2].ToString() + "/" + play_data.instance.player_income[play_data.instance.whosturn, 2].ToString();

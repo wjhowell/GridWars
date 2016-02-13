@@ -22,6 +22,9 @@ public class play_data : MonoBehaviour {
 	public AudioClip fireball;
 	public AudioClip waterSplash;
 	public AudioClip grassCut;
+	public AudioClip defend;
+	public AudioClip claim;
+	public AudioClip endTurn;
 
 	public float lowPitchRange = .75F;
 	public float highPitchRange = 1.25F;
@@ -108,8 +111,6 @@ public class play_data : MonoBehaviour {
                 nt.row = y;
                 nt.owner = -1;
 				tiles [x, y] = nt;
-//				nt.gameObject.SetActive (false);
-//				StartCoroutine (genTile (nt));
             }
         }
 
@@ -149,11 +150,6 @@ public class play_data : MonoBehaviour {
         UpdateSelectableTiles();
     }
 
-	IEnumerator genTile(tile nt){
-		yield return new WaitForSeconds(Random.Range(0,1.25f));
-		nt.gameObject.SetActive (true);
-	}
-
     public void UpdateSelectableTiles() {
         for (int p = 0; p < 14; p++)
         {
@@ -187,6 +183,7 @@ public class play_data : MonoBehaviour {
 
     public void next_turn()
     {
+		audSource.PlayOneShot (endTurn, 1.5f);
         whosturn++;
         moves_remain = 2;
         if (whosturn == 4)
@@ -221,6 +218,9 @@ public class play_data : MonoBehaviour {
         moves_remain--;
         if (owner[current_select_col, current_select_row] == -1) //one-time claim
         {
+			audSource.pitch = Random.Range (lowPitchRange, highPitchRange);
+			audSource.PlayOneShot (claim, 1.5f);
+
             owner[current_select_col, current_select_row] = whosturn;  
             remaining[current_select_col, current_select_row] = 0;
 			int type_index = type2int(tile_type [current_select_col, current_select_row]);
@@ -230,6 +230,9 @@ public class play_data : MonoBehaviour {
         }
         else if (owner[current_select_col, current_select_row] == whosturn) //Fire Defense
         {
+			audSource.pitch = 1.0f + defense [current_select_col, current_select_row]/10f;
+			audSource.PlayOneShot (defend, 1.0f);
+
             defense_type[current_select_col, current_select_row] = type.Fire;
             defense[current_select_col, current_select_row]++;
             player_resource[whosturn, 0] -= 5;
@@ -246,6 +249,9 @@ public class play_data : MonoBehaviour {
         moves_remain--;
         if (owner[current_select_col, current_select_row] == -1) //long-term claim
         {
+			audSource.pitch = Random.Range (lowPitchRange, highPitchRange);
+			audSource.PlayOneShot (claim, 1.5f);
+
             owner[current_select_col, current_select_row] = whosturn;
             //coordinate temp = new coordinate(current_select_col, current_select_row);
             //player_property[whosturn].Add(temp);
@@ -272,6 +278,9 @@ public class play_data : MonoBehaviour {
         }
         else if (owner[current_select_col, current_select_row] == whosturn)//Water Defense
         {
+			audSource.pitch = 1.0f + defense [current_select_col, current_select_row]/10f;
+			audSource.PlayOneShot (defend, 1.0f);
+
             defense_type[current_select_col, current_select_row] = type.Water;
             defense[current_select_col, current_select_row]++;
             player_resource[whosturn, 1] -= 5;
@@ -287,6 +296,9 @@ public class play_data : MonoBehaviour {
         moves_remain--;
         if (owner[current_select_col, current_select_row] == whosturn)//Earth Defense
         {
+			audSource.pitch = 1.0f + defense [current_select_col, current_select_row]/10f;
+			audSource.PlayOneShot (defend, 1.0f);
+
             defense_type[current_select_col, current_select_row] = type.Earth;
             defense[current_select_col, current_select_row]++;
             player_resource[whosturn, 2] -= 5;

@@ -1730,6 +1730,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ef16c5b2cf53234bb1599c395ec89fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  audSource: {fileID: 0}
+  fireball: {fileID: 8300000, guid: 6f8bd6c4d638cbc4e942a3dc9e5ebe50, type: 3}
+  waterSplash: {fileID: 8300000, guid: 18b03b88f30022845878a88259793550, type: 3}
+  grassCut: {fileID: 8300000, guid: f70fd84aeaf42d14799178ba67150fc6, type: 3}
+  defend: {fileID: 8300000, guid: 4cd64846fdd1ca543b3c2c206ac8b47b, type: 3}
+  claim: {fileID: 8300000, guid: c364237269c14cb4f8f349c6f41b0805, type: 3}
+  endTurn: {fileID: 8300000, guid: c3d1c908b89a71442b4e983d5228340b, type: 3}
+  lowPitchRange: 0.75
+  highPitchRange: 1.25
   tilePrefab: {fileID: 11488328, guid: 467fd59305fdd324ca02c5a184876273, type: 2}
   current_select_col: 0
   current_select_row: 0
@@ -1841,7 +1850,7 @@ AudioSource:
       tangentMode: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
-    m_RotationOrder: 4
+    m_RotationOrder: 0
   reverbZoneMixCustomCurve:
     serializedVersion: 2
     m_Curve:

@@ -1,8 +1,13 @@
 ﻿using UnityEngine;
+using UnityEngine.Audio;
 using System.Collections;
 
 public class tile : MonoBehaviour {
     tile instance;
+	public AudioSource audSource;
+	public AudioClip click;
+	public float lowPitchRange = .95F;
+	public float highPitchRange = 1.05F;
 	public Rigidbody rb;
     public int row;
     public int col;
@@ -20,6 +25,7 @@ public class tile : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		audSource = GetComponent<AudioSource> ();
         instance = this;
 		rb = GetComponents<Rigidbody> ()[0];
         //row = (int)transform.position.y;
@@ -137,6 +143,8 @@ public class tile : MonoBehaviour {
 
     void OnMouseDown()
     {
+		audSource.pitch = Random.Range (lowPitchRange, highPitchRange);
+		audSource.PlayOneShot (click, 1.0f);
         play_data.instance.current_select_row = row;
         play_data.instance.current_select_col = col;
     }
