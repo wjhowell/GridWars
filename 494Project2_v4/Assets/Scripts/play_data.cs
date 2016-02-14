@@ -84,7 +84,17 @@ public class play_data : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        //print(owner[0,1]);
+        
+		// breaks HUD/play_data code (no unavailabity checking on play_data level)
+		if (Input.GetKeyDown (KeyCode.Q)) {
+			option_0 ();
+		} else if (Input.GetKeyDown (KeyCode.A)) {
+			option_1 ();
+		} else if (Input.GetKeyDown (KeyCode.Z)) {
+			option_2 ();
+		} else if (Input.GetKeyDown (KeyCode.X)) {
+			next_turn ();
+		}
 	}
 
     void SetupBoard(int cols, int rows)
@@ -354,6 +364,46 @@ public class play_data : MonoBehaviour {
 
 		// make the tile shake :)
 		tiles[def_col, def_row].shake_delay = 0.5f;
+	}
+
+	/// <summary>
+	/// Performs the super attack!
+	/// Should be called from SuperWeaponSelector.
+	/// </summary>
+	/// <param name="col">target column</param>
+	/// <param name="row">target row</param>
+	public void DoSuperAttack(int col, int row) {
+		List<tile> targets = new List<tile>();
+		if (!HasTileAt (col, row))
+			throw new UnityException ("There is no target at: " + col + ", " + row + "!");
+		else
+			targets.Add (tiles [col, row]);
+		if (HasTileAt(col + 1, row))
+			targets.Add (tiles [col + 1, row]);
+		if (HasTileAt(col - 1, row))
+			targets.Add (tiles [col - 1, row]);
+		if (HasTileAt(col, row + 1))
+			targets.Add (tiles [col, row + 1]);
+		if (HasTileAt(col, row - 1))
+			targets.Add (tiles [col, row - 1]);
+
+		// sync issues between play_data and tile collection may arrise!
+		foreach (tile t in targets) {
+			owner[t.col, t.row] = t.owner = whosturn;
+			tile_type[t.col, t.row] = defense_type[t.col, t.row] = t.defense_type = t.tile_type = type.Empty;
+			defense[t.col, t.row] = t.defense = 0;
+			t.shake_delay = 0.5f;
+		}
+	}
+
+	/// <summary>
+	/// Determines whether this instance has tile at the specified column and row.
+	/// </summary>
+	/// <returns><c>true</c> if this instance has tile at the specified column and row; otherwise, <c>false</c>.</returns>
+	/// <param name="col">column of the board</param>
+	/// <param name="row">row of the board</param>
+	bool HasTileAt(int col, int row) {
+		return (col >= 0 && col < tiles.GetLength (0) && row >= 0 && row < tiles.GetLength (1));
 	}
 
     int type2int(type input_type)

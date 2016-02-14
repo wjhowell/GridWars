@@ -3,7 +3,7 @@ using UnityEngine.Audio;
 using System.Collections;
 
 public class tile : MonoBehaviour {
-    tile instance;
+    
 	public AudioSource audSource;
 	public AudioClip click;
 	public float lowPitchRange = .95F;
@@ -18,6 +18,7 @@ public class tile : MonoBehaviour {
     public int remaining;
     public Sprite[] sprites;
 
+	// ???
     public float duration = 1f;
     public float alpha = 0f;
 
@@ -26,7 +27,7 @@ public class tile : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		audSource = GetComponent<AudioSource> ();
-        instance = this;
+        
 		rb = GetComponents<Rigidbody> ()[0];
         //row = (int)transform.position.y;
         //col = (int)transform.position.x;
@@ -99,7 +100,7 @@ public class tile : MonoBehaviour {
 
         GetComponent<SpriteRenderer>().sprite = get_sprite_by_name(sprite_name);
 
-        GameObject blinker = instance.transform.GetChild(0).gameObject;
+		GameObject blinker = GetComponent<Transform>().GetChild(0).gameObject;
 
         float lerp = Mathf.PingPong(Time.time, duration) / duration;
         float alpha = Mathf.Lerp(.3f, .5f, lerp);

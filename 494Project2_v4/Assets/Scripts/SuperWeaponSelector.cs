@@ -31,6 +31,9 @@ public class SuperWeaponSelector : MonoBehaviour {
 		if (Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0) {
 			OnMouseMove ();
 		}
+		if (Input.GetMouseButtonDown (0) || Input.GetMouseButtonDown (1) || Input.GetMouseButtonDown (2)) {
+			OnMousePress ();
+		}
 
 		// special modification to linear interpolation that prevents 1 jumping to 0 immediately
 		// this on "continuously" approaches 0 from 1 rather than "jumping"
@@ -45,6 +48,7 @@ public class SuperWeaponSelector : MonoBehaviour {
 	/// <summary>
 	/// Raises the mouse move event.
 	/// Called in Update() method.
+	/// Selector follows user's mouse position.
 	/// </summary>
 	void OnMouseMove() {
 		// get the tile location from the mouse position
@@ -63,5 +67,17 @@ public class SuperWeaponSelector : MonoBehaviour {
 
 		// set position of selector to match
 		GetComponent<Transform>().position = pos;
+	}
+
+	/// <summary>
+	/// Raises the mouse press event.
+	/// Called in Update() method.
+	/// Fires the super weapon!
+	/// </summary>
+	void OnMousePress() {
+		int target_col = (int)GetComponent<Transform> ().position.x;
+		int target_row = (int)GetComponent<Transform> ().position.y;
+		play_data.instance.DoSuperAttack (target_col, target_row);
+		is_active = false;
 	}
 }
