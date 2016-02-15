@@ -138,14 +138,14 @@ public class play_data : MonoBehaviour {
         }
 
 
-        owner[0, 0] = 0;
-        owner[0, 9] = 1;
-        owner[13, 9] = 2;
-        owner[13, 0] = 3;
-        tile_type[0, 0] = type.Empty;
-        tile_type[0, 9] = type.Empty;
-        tile_type[13, 9] = type.Empty;
-        tile_type[13, 0] = type.Empty;
+        owner[4, 2] = 0;
+        owner[4, 7] = 1;
+        owner[9, 7] = 2;
+        owner[9, 2] = 3;
+        tile_type[4, 2] = type.Empty;
+        tile_type[4, 7] = type.Empty;
+        tile_type[9, 7] = type.Empty;
+        tile_type[9, 2] = type.Empty;
         for (int p = 0; p < 14; p++)
         {
             for (int q = 0; q < 10; q++)
