@@ -64,6 +64,7 @@ public class Hud : MonoBehaviour {
         if (play_data.instance.moves_remain!=0 && play_data.instance.IsSelectable[play_data.instance.current_select_col, play_data.instance.current_select_row])
         {
             #region if you still have move and selectable
+
             //need path_find function to determine if it's accessible
             if (play_data.instance.owner[play_data.instance.current_select_col, play_data.instance.current_select_row] == -1) //if the tile has no owner
             {
@@ -118,9 +119,18 @@ public class Hud : MonoBehaviour {
             }
             else //Attack(tile's owner != player of current turn)
             {
+                
+
+
+
+
                 option_0_text.text = "Fire Attack";
                 option_1_text.text = "Water Attack";
                 option_2_text.text = "Grass Attack";
+
+
+                
+                
                 option_0.interactable = true;
                 option_1.interactable = true;
                 option_2.interactable = true;
