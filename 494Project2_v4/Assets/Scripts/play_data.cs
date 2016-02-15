@@ -346,21 +346,72 @@ public class play_data : MonoBehaviour {
 		
 		//Audio
 		audSource.pitch = Random.Range (lowPitchRange, highPitchRange);
+		
+
+		type def_type = defense_type[def_col, def_row];
+		int damage = 0;
 		switch (element) {
 		case type.Fire:
 			audSource.PlayOneShot (fireball, 1.0f);
+			switch (def_type) {
+			case type.Fire:
+				damage = 1;
+				break;
+			case type.Water:
+				damage = 0;
+				break;
+			case type.Earth:
+				damage = 2;
+				break;
+			default:
+				damage = 1;
+				break;
+			}
 			break;
+
 		case type.Water:
 			audSource.PlayOneShot (waterSplash, 1.0f);
+			switch (def_type) {
+			case type.Fire:
+				damage = 2;
+				break;
+			case type.Water:
+				damage = 1;
+				break;
+			case type.Earth:
+				damage = 0;
+				break;
+			default:
+				damage = 1;
+				break;
+			}
 			break;
+
 		case type.Earth:
 			audSource.PlayOneShot (grassCut, 1.0f);
+			switch (def_type) {
+			case type.Fire:
+				damage = 0;
+				break;
+			case type.Water:
+				damage = 2;
+				break;
+			case type.Earth:
+				damage = 1;
+				break;
+			default:
+				damage = 1;
+				break;
+			}
 			break;
 		default:
+			damage = 1;
 			break;
 		}
 
-		defense [def_col, def_row]--;
+
+		defense [def_col, def_row] -= damage;
+		
 		if (player_resource [whosturn, type2int(element)] > 0) {
 			player_resource [whosturn, type2int(element)] -= 1;
 		}
