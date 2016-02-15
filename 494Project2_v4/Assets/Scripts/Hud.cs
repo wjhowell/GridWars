@@ -95,35 +95,50 @@ public class Hud : MonoBehaviour {
                 switch (play_data.instance.defense_type[play_data.instance.current_select_col, play_data.instance.current_select_row])
                 {
                     case type.Fire:
-                        option_0.interactable = true;
+						if (play_data.instance.player_resource[play_data.instance.whosturn, 0] > 0) option_0.interactable = true;//replace 0 with cost to defend
+						else option_0.interactable = false;
                         option_1.interactable = false;
                         option_2.interactable = false;
                         break;
                     case type.Water:
                         option_0.interactable = false;
-                        option_1.interactable = true;
+						if (play_data.instance.player_resource[play_data.instance.whosturn, 1] > 0) option_1.interactable = true;
+						else option_1.interactable = false;
                         option_2.interactable = false;
                         break;
                     case type.Earth:
                         option_0.interactable = false;
                         option_1.interactable = false;
-                        option_2.interactable = true;
+						if (play_data.instance.player_resource[play_data.instance.whosturn, 2] > 0) option_2.interactable = true;
+						else option_2.interactable = false;
                         break;
                     case type.Empty:
-                        option_0.interactable = true;
-                        option_1.interactable = true;
-                        option_2.interactable = true;
+						if (play_data.instance.player_resource[play_data.instance.whosturn, 0] > 0) option_0.interactable = true;
+						else option_0.interactable = false;
+						if (play_data.instance.player_resource[play_data.instance.whosturn, 1] > 0) option_1.interactable = true;
+						else option_1.interactable = false;
+						if (play_data.instance.player_resource[play_data.instance.whosturn, 2] > 0) option_2.interactable = true;
+						else option_2.interactable = false;
                         break;
                 }
             }
             else //Attack(tile's owner != player of current turn)
             {
+				option_0.interactable = false;
+				option_1.interactable = false;
+				option_2.interactable = false;
+                if (play_data.instance.player_resource[play_data.instance.whosturn, 0] > 0){//replace 0 with cost to attack
+					option_0.interactable = true;
+                }
+                if (play_data.instance.player_resource[play_data.instance.whosturn, 1] > 0) {
+					option_1.interactable = true;
+                }
+                if (play_data.instance.player_resource[play_data.instance.whosturn, 2] > 0) {
+					option_2.interactable = true;
+                }
                 option_0_text.text = "Fire Attack";
                 option_1_text.text = "Water Attack";
                 option_2_text.text = "Grass Attack";
-                option_0.interactable = true;
-                option_1.interactable = true;
-                option_2.interactable = true;
             }
             #endregion 
         }
