@@ -52,6 +52,8 @@ public class play_data : MonoBehaviour {
     public Sprite[] fire;
     public Sprite[] water;
     public Sprite[] earth;
+    // tiles owned by players
+    public int[] tiles_owned = new int[4];
 
     //public coordinate[] player_0;
     //public coordinate[] player_1;
@@ -85,16 +87,16 @@ public class play_data : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         
-		// breaks HUD/play_data code (no unavailabity checking on play_data level)
-		if (Input.GetKeyDown (KeyCode.Q)) {
-			option_0 ();
-		} else if (Input.GetKeyDown (KeyCode.A)) {
-			option_1 ();
-		} else if (Input.GetKeyDown (KeyCode.Z)) {
-			option_2 ();
-		} else if (Input.GetKeyDown (KeyCode.X)) {
-			next_turn ();
-		}
+		// // breaks HUD/play_data code (no unavailabity checking on play_data level)
+		// if (Input.GetKeyDown (KeyCode.Q)) {
+		// 	option_0 ();
+		// } else if (Input.GetKeyDown (KeyCode.A)) {
+		// 	option_1 ();
+		// } else if (Input.GetKeyDown (KeyCode.Z)) {
+		// 	option_2 ();
+		// } else if (Input.GetKeyDown (KeyCode.X)) {
+		// 	next_turn ();
+		// }
 	}
 
     void SetupBoard(int cols, int rows)
@@ -146,6 +148,11 @@ public class play_data : MonoBehaviour {
         tile_type[4, 7] = type.Empty;
         tile_type[9, 7] = type.Empty;
         tile_type[9, 2] = type.Empty;
+        tiles_owned[0] = 1;
+	    tiles_owned[1] = 1;
+	    tiles_owned[2] = 1;
+	    tiles_owned[3] = 1;
+
         for (int p = 0; p < 14; p++)
         {
             for (int q = 0; q < 10; q++)
@@ -196,14 +203,24 @@ public class play_data : MonoBehaviour {
 		audSource.PlayOneShot (endTurn, 1.5f);
         whosturn++;
         moves_remain = 2;
+
+
+
         if (whosturn == 4)
         {
             whosturn = 0;
         }
 
+
+        // make sure player is still in game
+        while(tiles_owned[whosturn] <= 0){
+        	whosturn++;
+        }
+
+
         for (int p = 0; p < 3; p++)
         {
-                player_resource[whosturn, p] += player_income[whosturn, p];
+            player_resource[whosturn, p] += player_income[whosturn, p];
         }
         for (int p = 0; p < 3; p++)
         {
@@ -223,6 +240,8 @@ public class play_data : MonoBehaviour {
         UpdateSelectableTiles();
     }
 
+
+    // one time claim
     public void option_0()
     {
         moves_remain--;
@@ -230,22 +249,17 @@ public class play_data : MonoBehaviour {
         {
 			audSource.pitch = Random.Range (lowPitchRange, highPitchRange);
 			audSource.PlayOneShot (claim, 1.5f);
-
             owner[current_select_col, current_select_row] = whosturn;  
             remaining[current_select_col, current_select_row] = 0;
 			int type_index = type2int(tile_type [current_select_col, current_select_row]);
 			if (type_index != -1)
 				player_resource[whosturn, type_index] += 5;
             tile_type[current_select_col, current_select_row] = type.Empty;
+            ++tiles_owned[whosturn];
         }
         else if (owner[current_select_col, current_select_row] == whosturn) //Fire Defense
         {
-			audSource.pitch = 1.0f + defense [current_select_col, current_select_row]/10f;
-			audSource.PlayOneShot (defend, 1.0f);
-
-            defense_type[current_select_col, current_select_row] = type.Fire;
-            defense[current_select_col, current_select_row]++;
-            player_resource[whosturn, 0] -= 5;
+			DoDefense(type.Fire);
         }
         else //Fire attack
         {
@@ -254,6 +268,7 @@ public class play_data : MonoBehaviour {
         UpdateSelectableTiles();
     }
 
+    // long term claim
     public void option_1()
     {
         moves_remain--;
@@ -263,6 +278,7 @@ public class play_data : MonoBehaviour {
 			audSource.PlayOneShot (claim, 1.5f);
 
             owner[current_select_col, current_select_row] = whosturn;
+            ++tiles_owned[whosturn];
             //coordinate temp = new coordinate(current_select_col, current_select_row);
             //player_property[whosturn].Add(temp);
             switch (tile_type[current_select_col, current_select_row])
@@ -288,12 +304,7 @@ public class play_data : MonoBehaviour {
         }
         else if (owner[current_select_col, current_select_row] == whosturn)//Water Defense
         {
-			audSource.pitch = 1.0f + defense [current_select_col, current_select_row]/10f;
-			audSource.PlayOneShot (defend, 1.0f);
-
-            defense_type[current_select_col, current_select_row] = type.Water;
-            defense[current_select_col, current_select_row]++;
-            player_resource[whosturn, 1] -= 5;
+			DoDefense(type.Water);
         }
         else //Water attack
         { 
@@ -306,18 +317,21 @@ public class play_data : MonoBehaviour {
         moves_remain--;
         if (owner[current_select_col, current_select_row] == whosturn)//Earth Defense
         {
-			audSource.pitch = 1.0f + defense [current_select_col, current_select_row]/10f;
-			audSource.PlayOneShot (defend, 1.0f);
-
-            defense_type[current_select_col, current_select_row] = type.Earth;
-            defense[current_select_col, current_select_row]++;
-            player_resource[whosturn, 2] -= 5;
+			DoDefense(type.Earth);
         }
         else //Earth attack
         {
 			DoAttack (current_select_col, current_select_row, type.Earth, whosturn);
         }
         UpdateSelectableTiles();
+    }
+
+    void DoDefense(type element){
+    	audSource.pitch = 1.0f + defense [current_select_col, current_select_row] / 10f;
+		audSource.PlayOneShot (defend, 1.0f);
+        defense_type[current_select_col, current_select_row] = element;
+        defense[current_select_col, current_select_row]++;
+        player_resource[whosturn, type2int(element)] -= 1;
     }
 
 	/// <summary>
@@ -329,37 +343,92 @@ public class play_data : MonoBehaviour {
 	/// <param name="element">Element of the attack.</param>
 	/// <param name="current_turn">Player index, for who's current turn.</param>
 	void DoAttack(int def_col, int def_row, type element, int current_turn) {
+		
 		//Audio
 		audSource.pitch = Random.Range (lowPitchRange, highPitchRange);
+		
+
+		type def_type = defense_type[def_col, def_row];
+		int damage = 0;
 		switch (element) {
 		case type.Fire:
 			audSource.PlayOneShot (fireball, 1.0f);
+			switch (def_type) {
+			case type.Fire:
+				damage = 1;
+				break;
+			case type.Water:
+				damage = 0;
+				break;
+			case type.Earth:
+				damage = 2;
+				break;
+			default:
+				damage = 1;
+				break;
+			}
 			break;
+
 		case type.Water:
 			audSource.PlayOneShot (waterSplash, 1.0f);
+			switch (def_type) {
+			case type.Fire:
+				damage = 2;
+				break;
+			case type.Water:
+				damage = 1;
+				break;
+			case type.Earth:
+				damage = 0;
+				break;
+			default:
+				damage = 1;
+				break;
+			}
 			break;
+
 		case type.Earth:
 			audSource.PlayOneShot (grassCut, 1.0f);
+			switch (def_type) {
+			case type.Fire:
+				damage = 0;
+				break;
+			case type.Water:
+				damage = 2;
+				break;
+			case type.Earth:
+				damage = 1;
+				break;
+			default:
+				damage = 1;
+				break;
+			}
 			break;
 		default:
+			damage = 1;
 			break;
 		}
 
-		defense [def_col, def_row]--;
+
+		defense [def_col, def_row] -= damage;
+		
 		if (player_resource [whosturn, type2int(element)] > 0) {
-			player_resource [whosturn, type2int(element)] -= 5;
-		} else {
+			player_resource [whosturn, type2int(element)] -= 1;
+		}
+		else {
 			// tell player, insufficent resoures
 			// better yet, grey out the box
 			++moves_remain;
 		}
 
 		// barrier down, player takes immediately
-		if (defense[def_col, def_row] <= 0)
+		if (defense[def_col, def_row] < 0)
 		{
 			defense_type[def_col, def_row] = type.Empty;
 			defense[def_col, def_row] = 0;
+			--tiles_owned[owner[def_col, def_row]];
 			owner[def_col, def_row] = current_turn;
+			++tiles_owned[current_turn];
 		}
 
 		// make the tile shake :)

@@ -64,6 +64,7 @@ public class Hud : MonoBehaviour {
         if (play_data.instance.moves_remain!=0 && play_data.instance.IsSelectable[play_data.instance.current_select_col, play_data.instance.current_select_row])
         {
             #region if you still have move and selectable
+
             //need path_find function to determine if it's accessible
             if (play_data.instance.owner[play_data.instance.current_select_col, play_data.instance.current_select_row] == -1) //if the tile has no owner
             {
