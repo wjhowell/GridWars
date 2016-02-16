@@ -68,6 +68,7 @@ public class play_data : MonoBehaviour {
         moves_remain = 2;
         whosturn = 0;
         instance = this;
+        SetupBoard(14, 10);
         //SetupBlankBoard(14, 10);
         for (int p=0; p < 4; p++)
         {
@@ -85,15 +86,15 @@ public class play_data : MonoBehaviour {
 	void Update () {
         
 		// breaks HUD/play_data code (no unavailabity checking on play_data level)
-		//if (Input.GetKeyDown (KeyCode.Q)) {
-		//	option_0 ();
-		//} else if (Input.GetKeyDown (KeyCode.A)) {
-		//	option_1 ();
-		//} else if (Input.GetKeyDown (KeyCode.Z)) {
-		//	option_2 ();
-		//} else if (Input.GetKeyDown (KeyCode.X)) {
-		//	next_turn ();
-		//}
+		if (Input.GetKeyDown (KeyCode.Q)) {
+			option_0 ();
+		} else if (Input.GetKeyDown (KeyCode.W)) {
+			option_1 ();
+		} else if (Input.GetKeyDown (KeyCode.E)) {
+			option_2 ();
+		} else if (Input.GetKeyDown (KeyCode.R)) {
+			next_turn ();
+		}
 	}
 
     void SetupBoard(int cols, int rows)
@@ -262,7 +263,7 @@ public class play_data : MonoBehaviour {
             }
         }
 
-        random_events();
+        // random_events();
 
 
 
@@ -276,8 +277,7 @@ public class play_data : MonoBehaviour {
         if (seed < 0.04)
         {
             Hud.instance.Panel1.gameObject.SetActive(false);
-            Hud.instance.Panel2.gameObject.SetActive(false);
-            Hud.instance.Panel3.gameObject.SetActive(true);
+            Hud.instance.Panel2.gameObject.SetActive(true);
             player_resource[whosturn, 0] += 10;
             Hud.instance.instruction_text.text = "Congratulations!\nA volcano erupts and you picked up 10 fire.";
             Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = fire[0];
@@ -286,8 +286,7 @@ public class play_data : MonoBehaviour {
         else if (seed < 0.08)
         {
             Hud.instance.Panel1.gameObject.SetActive(false);
-            Hud.instance.Panel2.gameObject.SetActive(false);
-            Hud.instance.Panel3.gameObject.SetActive(true);
+            Hud.instance.Panel2.gameObject.SetActive(true);
             player_resource[whosturn, 1] += 10;
             Hud.instance.instruction_text.text = "Congratulations!\nIt's raining and you picked up 10 water.";
             Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = water[0];
@@ -296,8 +295,7 @@ public class play_data : MonoBehaviour {
         else if (seed < 0.12)
         {
             Hud.instance.Panel1.gameObject.SetActive(false);
-            Hud.instance.Panel2.gameObject.SetActive(false);
-            Hud.instance.Panel3.gameObject.SetActive(true);
+            Hud.instance.Panel2.gameObject.SetActive(true);
             player_resource[whosturn, 2] += 10;
             Hud.instance.instruction_text.text = "Congratulations!\nYou just picked up 10 grass in the wild.";
             Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = earth[0];
@@ -308,8 +306,7 @@ public class play_data : MonoBehaviour {
             if (player_resource[whosturn, 0] >= 10)
             {
                 Hud.instance.Panel1.gameObject.SetActive(false);
-                Hud.instance.Panel2.gameObject.SetActive(false);
-                Hud.instance.Panel3.gameObject.SetActive(true);
+                Hud.instance.Panel2.gameObject.SetActive(true);
                 player_resource[whosturn, 0] -= 10;
                 Hud.instance.instruction_text.text = "I'm sorry\nAliens just robbed you for 10 fire.";
                 Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = fire[0];
@@ -325,8 +322,7 @@ public class play_data : MonoBehaviour {
             if (player_resource[whosturn, 1] >= 10)
             {
                 Hud.instance.Panel1.gameObject.SetActive(false);
-                Hud.instance.Panel2.gameObject.SetActive(false);
-                Hud.instance.Panel3.gameObject.SetActive(true);
+                Hud.instance.Panel2.gameObject.SetActive(true);
                 player_resource[whosturn, 1] -= 10;
                 Hud.instance.instruction_text.text = "I'm sorry\nAliens just robbed you for 10 water.";
                 Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = water[0];
@@ -342,8 +338,7 @@ public class play_data : MonoBehaviour {
             if (player_resource[whosturn, 2] >= 10)
             {
                 Hud.instance.Panel1.gameObject.SetActive(false);
-                Hud.instance.Panel2.gameObject.SetActive(false);
-                Hud.instance.Panel3.gameObject.SetActive(true);
+                Hud.instance.Panel2.gameObject.SetActive(true);
                 player_resource[whosturn, 2] -= 10;
                 Hud.instance.instruction_text.text = "I'm sorry\nAliens just robbed you for 10 grass.";
                 Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = earth[0];
@@ -376,8 +371,7 @@ public class play_data : MonoBehaviour {
                 owner[seed_col, seed_row] = whosturn;
 
                 Hud.instance.Panel1.gameObject.SetActive(false);
-                Hud.instance.Panel2.gameObject.SetActive(false);
-                Hud.instance.Panel3.gameObject.SetActive(true);
+                Hud.instance.Panel2.gameObject.SetActive(true);
                 Hud.instance.instruction_text.text = "Congratulations!\n Your troop just claim tile("+ seed_col.ToString()+","+ seed_row.ToString()+")!";
                 switch(tile_type[seed_col, seed_row]){
                     case type.Empty:
@@ -421,36 +415,6 @@ public class play_data : MonoBehaviour {
     public void option_0()
     {
         moves_remain--;
-        if (owner[current_select_col, current_select_row] == -1) //one-time claim
-        {
-			audSource.pitch = Random.Range (lowPitchRange, highPitchRange);
-			audSource.PlayOneShot (claim, 1.5f);
-
-            owner[current_select_col, current_select_row] = whosturn;  
-            remaining[current_select_col, current_select_row] = 0;
-			int type_index = type2int(tile_type [current_select_col, current_select_row]);
-            if (type_index != -1)
-            {
-                tiles[current_select_col, current_select_row].DisplayScoreChange(5);
-                player_resource[whosturn, type_index] += 5;
-            }
-            tile_type[current_select_col, current_select_row] = type.Empty;
-            ++tiles_owned[whosturn];
-        }
-        else if (owner[current_select_col, current_select_row] == whosturn) //Fire Defense
-        {
-            DoDefense(type.Fire);
-        }
-        else //Fire attack
-        {
-			DoAttack (current_select_col, current_select_row, type.Fire, whosturn);
-        }
-        UpdateSelectableTiles();
-    }
-
-    public void option_1()
-    {
-        moves_remain--;
         if (owner[current_select_col, current_select_row] == -1) //long-term claim
         {
 			audSource.pitch = Random.Range (lowPitchRange, highPitchRange);
@@ -481,6 +445,36 @@ public class play_data : MonoBehaviour {
                     break;
             }
 
+        }
+        else if (owner[current_select_col, current_select_row] == whosturn) //Fire Defense
+        {
+            DoDefense(type.Fire);
+        }
+        else //Fire attack
+        {
+			DoAttack (current_select_col, current_select_row, type.Fire, whosturn);
+        }
+        UpdateSelectableTiles();
+    }
+
+    public void option_1()
+    {
+        moves_remain--;
+        if (owner[current_select_col, current_select_row] == -1) //one-time claim
+        {
+			audSource.pitch = Random.Range (lowPitchRange, highPitchRange);
+			audSource.PlayOneShot (claim, 1.5f);
+
+            owner[current_select_col, current_select_row] = whosturn;  
+            remaining[current_select_col, current_select_row] = 0;
+			int type_index = type2int(tile_type [current_select_col, current_select_row]);
+            if (type_index != -1)
+            {
+                tiles[current_select_col, current_select_row].DisplayScoreChange(5);
+                player_resource[whosturn, type_index] += 5;
+            }
+            tile_type[current_select_col, current_select_row] = type.Empty;
+            ++tiles_owned[whosturn];
         }
         else if (owner[current_select_col, current_select_row] == whosturn)//Water Defense
         {
@@ -525,8 +519,7 @@ public class play_data : MonoBehaviour {
             GameObject.Find("Start").SetActive(false);
         }
         Hud.instance.Panel1.gameObject.SetActive(true);
-        Hud.instance.Panel2.gameObject.SetActive(true);
-        Hud.instance.Panel3.gameObject.SetActive(false);
+        Hud.instance.Panel2.gameObject.SetActive(false);
     }
 
     /// <summary>
@@ -686,18 +679,19 @@ public class play_data : MonoBehaviour {
 	/// <returns>color representing owner</returns>
 	/// <param name="owner_number">owner index number</param>
 	static public Color OwnerIntToColor(int owner_number) {
-		switch (owner_number)
-		{
-		case 0:
-			return Color.green;
-		case 1:
-			// purple
-			return new Color(0.453f, 0.270f, 0.809f);
-		case 2:
-			return Color.red;
-		case 3:
-			return Color.yellow;
-		}
-		throw new UnityException ("Invalid owner number");
+		return Color.black;
+		// switch (owner_number)
+		// {
+		// case 0:
+		// 	return Color.green;
+		// case 1:
+		// 	// purple
+		// 	return new Color(0.453f, 0.270f, 0.809f);
+		// case 2:
+		// 	return Color.red;
+		// case 3:
+		// 	return Color.yellow;
+		// }
+		// throw new UnityException ("Invalid owner number");
 	}
 }
