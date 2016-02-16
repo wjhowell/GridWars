@@ -358,8 +358,8 @@ public class play_data : MonoBehaviour {
                 Hud.instance.Panel3.gameObject.SetActive(true);
                 message = true;
                 player_resource[whosturn, 0] -= 10;
-                if(player_resource[whosturn, 2] < 0){
-                	player_resource[whosturn, 2] = 0;
+                if(player_resource[whosturn, 0] < 0){
+                	player_resource[whosturn, 0] = 0;
                 }
             	Hud.instance.instruction_title.text = "-10 resources :(";
                 Hud.instance.instruction_text.text = "I'm sorry\nAliens just robbed you for 10 fire.";
@@ -392,8 +392,8 @@ public class play_data : MonoBehaviour {
                 Hud.instance.Panel3.gameObject.SetActive(true);
                 message = true;
                 player_resource[whosturn, 1] -= 10;
-                if(player_resource[whosturn, 2] < 0){
-                	player_resource[whosturn, 2] = 0;
+                if(player_resource[whosturn, 1] < 0){
+                	player_resource[whosturn, 1] = 0;
                 }
             	Hud.instance.instruction_title.text = "-10 resources :(";
                 Hud.instance.instruction_text.text = "I'm sorry\nAliens just robbed you for 10 water.";
@@ -619,10 +619,16 @@ public class play_data : MonoBehaviour {
 	        defense_type[current_select_col, current_select_row] = element;
 	        defense[current_select_col, current_select_row]++;
 	        player_resource[whosturn, type2int(element)] -= 1;
+	        if(player_resource[whosturn, type2int(element)] < 0){
+	        	player_resource[whosturn, type2int(element)] = 0;
+	        }
 	    }
 	    else{
 	    	tiles[current_select_col, current_select_row].DisplayScoreChange(0);
 	        player_resource[whosturn, type2int(element)] -= 1;
+	        if(player_resource[whosturn, type2int(element)] < 0){
+	        	player_resource[whosturn, type2int(element)] = 0;
+	        }
 	    }
     }
 
@@ -709,6 +715,9 @@ public class play_data : MonoBehaviour {
         tiles[def_col, def_row].DisplayScoreChange(-damage);
         if (player_resource [whosturn, type2int(element)] > 0) {
 			player_resource [whosturn, type2int(element)] -= 1;
+			if(player_resource[whosturn, type2int(element)] < 0){
+	        	player_resource[whosturn, type2int(element)] = 0;
+	        }
 		} else {
 			// tell player, insufficent resoures
 			// better yet, grey out the box
@@ -733,16 +742,6 @@ public class play_data : MonoBehaviour {
             		someone_won = true;
             	}
             }
-
-
-            
-            player_resource[whosturn, 2] -= 10;
-        	Hud.instance.instruction_title.text = "-10 resources :(";
-            Hud.instance.instruction_text.text = "I'm sorry\nAliens just robbed you for 10 grass.";
-            Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = earth[0];
-
-
-
 
             owner[def_col, def_row] = current_turn;
             ++tiles_owned[current_turn];
