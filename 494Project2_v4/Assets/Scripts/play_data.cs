@@ -217,6 +217,10 @@ public class play_data : MonoBehaviour {
         // make sure player is still in game
         while(tiles_owned[whosturn] <= 0){
         	whosturn++;
+			if (whosturn == 4)
+			{
+				whosturn = 0;
+			}
         }
 
 
