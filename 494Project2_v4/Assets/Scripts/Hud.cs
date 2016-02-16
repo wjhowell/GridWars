@@ -32,6 +32,7 @@ public class Hud : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		// deciding color given to method: "play_data.OwnerIntToColor"
+		//print(play_data.instance.whosturn);
 		guicame.backgroundColor = play_data.OwnerIntToColor (play_data.instance.whosturn);
         
         location_text.text = "Row: " + play_data.instance.current_select_col.ToString() + "      Column: " + play_data.instance.current_select_row.ToString();
@@ -125,18 +126,24 @@ public class Hud : MonoBehaviour {
             }
             else //Attack(tile's owner != player of current turn)
             {
-				option_0.interactable = false;
-				option_1.interactable = false;
-				option_2.interactable = false;
                 if (play_data.instance.player_resource[play_data.instance.whosturn, 0] > 0){//replace 0 with cost to attack
 					option_0.interactable = true;
                 }
+				else{
+					option_0.interactable = false;
+				}
                 if (play_data.instance.player_resource[play_data.instance.whosturn, 1] > 0) {
 					option_1.interactable = true;
                 }
+				else{
+					option_1.interactable = false;
+				}
                 if (play_data.instance.player_resource[play_data.instance.whosturn, 2] > 0) {
 					option_2.interactable = true;
                 }
+				else{
+					option_2.interactable = false;
+				}
                 option_0_text.text = "Fire Attack";
                 option_1_text.text = "Water Attack";
                 option_2_text.text = "Grass Attack";
