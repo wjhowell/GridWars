@@ -56,8 +56,11 @@ public class Hud : MonoBehaviour {
     public Sprite[] bg;
 
     // start menu
+    public Button StartButton;
+
+    // message menu
+    public Text instruction_title;
     public Text instruction_text;
-    public Text Continue_text;
     public Button Continue;
 
     // panels
@@ -85,23 +88,16 @@ public class Hud : MonoBehaviour {
         instance = this;
         sprites = Resources.LoadAll<Sprite>("terrain");
 
-        // for start menu
-        Panel1.gameObject.SetActive(false);
-        Panel2.gameObject.SetActive(false);
-        Panel3.gameObject.SetActive(true);
-
         // listeners
         end_turn.onClick.AddListener(() => play_data.instance.next_turn());
         option_0.onClick.AddListener(() => play_data.instance.option_0());
         option_1.onClick.AddListener(() => play_data.instance.option_1());
         option_2.onClick.AddListener(() => play_data.instance.option_2());
         Continue.onClick.AddListener(() => play_data.instance.Continue());
+        StartButton.onClick.AddListener(() => play_data.instance.Continue());
     }
 
     public void updateAction(string text){
-
-        
-
 
         if (play_data.instance.moves_remain != 0 && play_data.instance.IsSelectable[play_data.instance.current_select_col, play_data.instance.current_select_row])
         {
@@ -220,7 +216,7 @@ public class Hud : MonoBehaviour {
         player_text.text = "Player " + (play_data.instance.whosturn + 1).ToString();
 
         // coordinate text
-        coordinate_text.text = "Row: " + (play_data.instance.current_select_col + 1).ToString() + ", Column: " + (play_data.instance.current_select_row + 1).ToString();
+        coordinate_text.text = "Column: " + (play_data.instance.current_select_col + 1).ToString() + ", Row: " + (play_data.instance.current_select_row + 1).ToString();
         
         // get current tile sprite
         string sprite_name = (owner + 1).ToString() + "_";
@@ -428,26 +424,32 @@ public class Hud : MonoBehaviour {
                 if (play_data.instance.player_resource[play_data.instance.whosturn, 0] >= 1)
                 {
                     option_0.interactable = true;
+                    option_0.image.sprite = fire;
                 }
                 else
                 {
                     option_0.interactable = false;
+                    option_0.image.sprite = fire_desat;
                 }
                 if (play_data.instance.player_resource[play_data.instance.whosturn, 1] >= 1)
                 {
                     option_1.interactable = true;
+                    option_1.image.sprite = water;
                 }
                 else
                 {
                     option_1.interactable = false;
+                    option_1.image.sprite = water_desat;
                 }
                 if (play_data.instance.player_resource[play_data.instance.whosturn, 2] >= 1)
                 {
                     option_2.interactable = true;
+                    option_2.image.sprite = grass;
                 }
                 else
                 {
                     option_2.interactable = false;
+                    option_2.image.sprite = grass_desat;
                 }
                 action_title.text = "Attack";
             }

@@ -27,6 +27,7 @@ public class play_data : MonoBehaviour {
 	public AudioClip defend;
 	public AudioClip claim;
 	public AudioClip endTurn;
+	public int loser_count = 0;
 
 	public float lowPitchRange = .75F;
 	public float highPitchRange = 1.25F;
@@ -264,7 +265,7 @@ public class play_data : MonoBehaviour {
             }
         }
 
-        // random_events();
+        random_events();
 
 
 
@@ -280,9 +281,23 @@ public class play_data : MonoBehaviour {
             Hud.instance.Panel1.gameObject.SetActive(false);
             Hud.instance.Panel2.gameObject.SetActive(false);
             Hud.instance.Panel3.gameObject.SetActive(true);
+            message = true;
             player_resource[whosturn, 0] += 10;
+            Hud.instance.instruction_title.text = "+10 resources :)";
             Hud.instance.instruction_text.text = "Congratulations!\nA volcano erupts and you picked up 10 fire.";
             Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = fire[0];
+            if(whosturn == 0){
+            	tiles[4, 2].DisplayScoreChange(10);
+            }
+            else if(whosturn == 1){
+            	tiles[4, 7].DisplayScoreChange(10);
+            }
+            else if(whosturn == 2){
+            	tiles[9, 7].DisplayScoreChange(10);
+            }
+            else if(whosturn == 3){
+            	tiles[9, 2].DisplayScoreChange(10);
+            }
             return;
         }
         else if (seed < 0.08)
@@ -290,9 +305,23 @@ public class play_data : MonoBehaviour {
             Hud.instance.Panel1.gameObject.SetActive(false);
             Hud.instance.Panel2.gameObject.SetActive(false);
             Hud.instance.Panel3.gameObject.SetActive(true);
+            message = true;
             player_resource[whosturn, 1] += 10;
+            Hud.instance.instruction_title.text = "+10 resources :)";
             Hud.instance.instruction_text.text = "Congratulations!\nIt's raining and you picked up 10 water.";
             Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = water[0];
+            if(whosturn == 0){
+            	tiles[4, 2].DisplayScoreChange(10);
+            }
+            else if(whosturn == 1){
+            	tiles[4, 7].DisplayScoreChange(10);
+            }
+            else if(whosturn == 2){
+            	tiles[9, 7].DisplayScoreChange(10);
+            }
+            else if(whosturn == 3){
+            	tiles[9, 2].DisplayScoreChange(10);
+            }
             return;
         }
         else if (seed < 0.12)
@@ -300,9 +329,23 @@ public class play_data : MonoBehaviour {
             Hud.instance.Panel1.gameObject.SetActive(false);
             Hud.instance.Panel2.gameObject.SetActive(false);
             Hud.instance.Panel3.gameObject.SetActive(true);
+            message = true;
             player_resource[whosturn, 2] += 10;
+            Hud.instance.instruction_title.text = "+10 resources :)";
             Hud.instance.instruction_text.text = "Congratulations!\nYou just picked up 10 grass in the wild.";
             Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = earth[0];
+            if(whosturn == 0){
+            	tiles[4, 2].DisplayScoreChange(10);
+            }
+            else if(whosturn == 1){
+            	tiles[4, 7].DisplayScoreChange(10);
+            }
+            else if(whosturn == 2){
+            	tiles[9, 7].DisplayScoreChange(10);
+            }
+            else if(whosturn == 3){
+            	tiles[9, 2].DisplayScoreChange(10);
+            }
             return;
         }
         else if (seed < 0.16)
@@ -312,9 +355,23 @@ public class play_data : MonoBehaviour {
                 Hud.instance.Panel1.gameObject.SetActive(false);
                 Hud.instance.Panel2.gameObject.SetActive(false);
                 Hud.instance.Panel3.gameObject.SetActive(true);
+                message = true;
                 player_resource[whosturn, 0] -= 10;
+            	Hud.instance.instruction_title.text = "-10 resources :(";
                 Hud.instance.instruction_text.text = "I'm sorry\nAliens just robbed you for 10 fire.";
                 Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = fire[0];
+                if(whosturn == 0){
+	            	tiles[4, 2].DisplayScoreChange(-10);
+	            }
+	            else if(whosturn == 1){
+	            	tiles[4, 7].DisplayScoreChange(-10);
+	            }
+	            else if(whosturn == 2){
+	            	tiles[9, 7].DisplayScoreChange(-10);
+	            }
+	            else if(whosturn == 3){
+	            	tiles[9, 2].DisplayScoreChange(-10);
+	            }
                 return;
             }
             else {
@@ -329,10 +386,24 @@ public class play_data : MonoBehaviour {
                 Hud.instance.Panel1.gameObject.SetActive(false);
                 Hud.instance.Panel2.gameObject.SetActive(false);
                 Hud.instance.Panel3.gameObject.SetActive(true);
+                message = true;
                 player_resource[whosturn, 1] -= 10;
+            	Hud.instance.instruction_title.text = "-10 resources :(";
                 Hud.instance.instruction_text.text = "I'm sorry\nAliens just robbed you for 10 water.";
                 Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = water[0];
-                return;
+                if(whosturn == 0){
+	            	tiles[4, 2].DisplayScoreChange(-10);
+	            }
+	            else if(whosturn == 1){
+	            	tiles[4, 7].DisplayScoreChange(-10);
+	            }
+	            else if(whosturn == 2){
+	            	tiles[9, 7].DisplayScoreChange(-10);
+	            }
+	            else if(whosturn == 3){
+	            	tiles[9, 2].DisplayScoreChange(-10);
+	            }
+	            return;
             }
             else
             {
@@ -346,10 +417,24 @@ public class play_data : MonoBehaviour {
                 Hud.instance.Panel1.gameObject.SetActive(false);
                 Hud.instance.Panel2.gameObject.SetActive(false);
                 Hud.instance.Panel3.gameObject.SetActive(true);
+                message = true;
                 player_resource[whosturn, 2] -= 10;
+            	Hud.instance.instruction_title.text = "-10 resources :(";
                 Hud.instance.instruction_text.text = "I'm sorry\nAliens just robbed you for 10 grass.";
                 Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = earth[0];
-                return;
+                if(whosturn == 0){
+	            	tiles[4, 2].DisplayScoreChange(-10);
+	            }
+	            else if(whosturn == 1){
+	            	tiles[4, 7].DisplayScoreChange(-10);
+	            }
+	            else if(whosturn == 2){
+	            	tiles[9, 7].DisplayScoreChange(-10);
+	            }
+	            else if(whosturn == 3){
+	            	tiles[9, 2].DisplayScoreChange(-10);
+	            }
+	            return;
             }
             else
             {
@@ -380,7 +465,9 @@ public class play_data : MonoBehaviour {
                 Hud.instance.Panel1.gameObject.SetActive(false);
                 Hud.instance.Panel2.gameObject.SetActive(false);
                 Hud.instance.Panel3.gameObject.SetActive(true);
-                Hud.instance.instruction_text.text = "Congratulations!\n Your troop just claim tile("+ seed_col.ToString()+","+ seed_row.ToString()+")!";
+                message = true;
+            	Hud.instance.instruction_title.text = "+1 tile :)";
+                Hud.instance.instruction_text.text = "Congratulations!\n You were gifted a new tile at column " + seed_col.ToString() + ", row " + seed_row.ToString() + "!";
                 switch(tile_type[seed_col, seed_row]){
                     case type.Empty:
                         Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = empty[whosturn + 1];
@@ -390,21 +477,24 @@ public class play_data : MonoBehaviour {
                         player_income[whosturn, 0]++;
                         player_resource[whosturn, 0]++;
                         remaining[seed_col, seed_row]--;
-                        Hud.instance.instruction_text.text += "\nFire income+1!";
+                        Hud.instance.instruction_text.text += "\nFire income +1!";
+                        tiles[seed_col, seed_row].DisplayScoreChange(1);
                         break;
                     case type.Water:
                         Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = water[whosturn + 1];
                         player_income[whosturn, 1]++;
                         player_resource[whosturn, 1]++;
                         remaining[seed_col, seed_row]--;
-                        Hud.instance.instruction_text.text += "\nWater income+1!";
+                        Hud.instance.instruction_text.text += "\nWater income +1!";
+                        tiles[seed_col, seed_row].DisplayScoreChange(1);
                         break;
                     case type.Earth:
                         Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = earth[whosturn + 1];
                         player_income[whosturn, 2]++;
                         player_resource[whosturn, 2]++;
                         remaining[seed_col, seed_row]--;
-                        Hud.instance.instruction_text.text += "\nGrass income+1!";
+                        Hud.instance.instruction_text.text += "\nGrass income +1!";
+                        tiles[seed_col, seed_row].DisplayScoreChange(1);
                         break;
 
                 }
@@ -536,6 +626,7 @@ public class play_data : MonoBehaviour {
         Hud.instance.Panel1.gameObject.SetActive(true);
         Hud.instance.Panel2.gameObject.SetActive(true);
         Hud.instance.Panel3.gameObject.SetActive(false);
+        message = false;
     }
 
     void DoAttack(int def_col, int def_row, type element, int current_turn) {
@@ -613,18 +704,64 @@ public class play_data : MonoBehaviour {
 			++moves_remain;
 		}
 
+		bool someone_lost = false;
+		bool someone_won = false;
+		int loser = owner[def_col, def_row];
+
 		// barrier down, player takes immediately
 		if (defense[def_col, def_row] < 0)
 		{
 			defense_type[def_col, def_row] = type.Empty;
 			defense[def_col, def_row] = 0;
             --tiles_owned[owner[def_col, def_row]];
+
+            if(tiles_owned[loser] <= 0){
+            	someone_lost = true;
+            	++loser_count;
+            	if(loser_count == 3){
+            		someone_won = true;
+            	}
+            }
+
+
+            
+            player_resource[whosturn, 2] -= 10;
+        	Hud.instance.instruction_title.text = "-10 resources :(";
+            Hud.instance.instruction_text.text = "I'm sorry\nAliens just robbed you for 10 grass.";
+            Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = earth[0];
+
+
+
+
             owner[def_col, def_row] = current_turn;
             ++tiles_owned[current_turn];
+
         }
 
 		// make the tile shake :)
 		tiles[def_col, def_row].shake_delay = 0.5f;
+
+		if(someone_lost){
+			if(!someone_won){
+				Hud.instance.Panel1.gameObject.SetActive(false);
+	            Hud.instance.Panel2.gameObject.SetActive(false);
+	            Hud.instance.Panel3.gameObject.SetActive(true);
+	            message = true;
+	            Hud.instance.instruction_title.text = "You lost!";
+	            Hud.instance.instruction_text.text = "I'm sorry, player " + (loser + 1).ToString() + ", but you have lost the GridWars.";
+	            Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = empty[loser + 1];
+	        }
+	        else{
+	        	Hud.instance.Panel1.gameObject.SetActive(false);
+	            Hud.instance.Panel2.gameObject.SetActive(false);
+	            Hud.instance.Panel3.gameObject.SetActive(true);
+	            message = true;
+	            Hud.instance.instruction_title.text = "You won!";
+	            Hud.instance.instruction_text.text = "Congratulations, player " + (whosturn + 1).ToString() + ", you have won the GridWars!";
+	            Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = empty[whosturn + 1];
+	        }
+		}
+
 	}
 
 	public void DoSuperAttack(int col, int row) {
