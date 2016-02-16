@@ -139,7 +139,7 @@ public class Hud : MonoBehaviour {
                 option_2_text.text = "Grass Defend";
                 switch (play_data.instance.defense_type[cur_col, cur_row]) {
                     case type.Fire:
-						if (play_data.instance.player_resource[whos_turn, 0] > 0) 
+						if (play_data.instance.player_resource[whos_turn, 0] >= play_data.COST_TO_DEFEND) 
 							option_0.interactable = true;//replace 0 with cost to defend
                         else 
 							option_0.interactable = false;
@@ -148,7 +148,7 @@ public class Hud : MonoBehaviour {
                         break;
                     case type.Water:
                         option_0.interactable = false;
-						if (play_data.instance.player_resource[whos_turn, 1] > 0) 
+						if (play_data.instance.player_resource[whos_turn, 1] >= play_data.COST_TO_DEFEND) 
 							option_1.interactable = true;
                         else 
 							option_1.interactable = false;
@@ -157,21 +157,21 @@ public class Hud : MonoBehaviour {
                     case type.Earth:
                         option_0.interactable = false;
                         option_1.interactable = false;
-						if (play_data.instance.player_resource[whos_turn, 2] > 0) 
+						if (play_data.instance.player_resource[whos_turn, 2] >= play_data.COST_TO_DEFEND) 
 							option_2.interactable = true;
                         else
 							option_2.interactable = false;
                         break;
                     case type.Empty:
-						if (play_data.instance.player_resource[whos_turn, 0] > 0)
+						if (play_data.instance.player_resource[whos_turn, 0] >= play_data.COST_TO_DEFEND)
 							option_0.interactable = true;
                         else
 							option_0.interactable = false;
-						if (play_data.instance.player_resource[whos_turn, 1] > 0)
+						if (play_data.instance.player_resource[whos_turn, 1] >= play_data.COST_TO_DEFEND)
 							option_1.interactable = true;
                         else 
 							option_1.interactable = false;
-						if (play_data.instance.player_resource[whos_turn, 2] > 0) 
+						if (play_data.instance.player_resource[whos_turn, 2] >= play_data.COST_TO_DEFEND) 
 							option_2.interactable = true;
                         else
 							option_2.interactable = false;
@@ -182,9 +182,9 @@ public class Hud : MonoBehaviour {
             {
 				//replace 0 with cost to attack
                 // done! -AJ
-				option_0.interactable = (play_data.instance.player_resource[whos_turn, 0] > play_data.COST_TO_ATTACK);
-				option_1.interactable = (play_data.instance.player_resource[whos_turn, 1] > play_data.COST_TO_ATTACK);
-				option_2.interactable = (play_data.instance.player_resource[whos_turn, 2] > play_data.COST_TO_ATTACK);
+				option_0.interactable = (play_data.instance.player_resource[whos_turn, 0] >= play_data.COST_TO_ATTACK);
+				option_1.interactable = (play_data.instance.player_resource[whos_turn, 1] >= play_data.COST_TO_ATTACK);
+				option_2.interactable = (play_data.instance.player_resource[whos_turn, 2] >= play_data.COST_TO_ATTACK);
 
                 option_0_text.text = "Fire Attack";
                 option_1_text.text = "Water Attack";

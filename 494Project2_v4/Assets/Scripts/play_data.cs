@@ -290,9 +290,9 @@ public class play_data : MonoBehaviour {
 
         random_events();
 
-
-
         UpdateSelectableTiles();
+		if (SuperWeapon.instance)
+			SuperWeapon.instance.OnNextTurn ();
     }
 
     public void random_events()
@@ -539,7 +539,7 @@ public class play_data : MonoBehaviour {
         audSource.PlayOneShot(defend, 1.0f);
         defense_type[current_select_col, current_select_row] = element;
         defense[current_select_col, current_select_row]++;
-        player_resource[whosturn, type2int(element)] -= 1;
+		player_resource[whosturn, type2int(element)] -= COST_TO_DEFEND;
     }
 
     public void Continue()
@@ -555,9 +555,8 @@ public class play_data : MonoBehaviour {
         Hud.instance.Panel3.gameObject.SetActive(false);
     }
 
-	public static int COST_TO_ATTACK {
-		get { return 1; }
-	}
+	public const int COST_TO_ATTACK = 1;
+	public const int COST_TO_DEFEND = 1;
 
     /// <summary>
     /// Performs an elemental attack onto a (an enemy's) tile.
@@ -568,70 +567,24 @@ public class play_data : MonoBehaviour {
     /// <param name="element">Element of the attack.</param>
     /// <param name="current_turn">Player index, for who's current turn.</param>
     void DoAttack(int def_col, int def_row, type element, int current_turn) {
-		//Audio
+		// Audio
 		audSource.pitch = Random.Range (lowPitchRange, highPitchRange);
-        type def_type = defense_type[def_col, def_row];
-        int damage = 0;
-        switch (element) {
+		switch (element) {
 		case type.Fire:
 			audSource.PlayOneShot (fireball, 1.0f);
-                switch (def_type)
-                {
-                    case type.Fire:
-                        damage = 1;
-                        break;
-                    case type.Water:
-                        damage = 0;
-                        break;
-                    case type.Earth:
-                        damage = 2;
-                        break;
-                    default:
-                        damage = 1;
-                        break;
-                }
-                break;
+			break;
 		case type.Water:
 			audSource.PlayOneShot (waterSplash, 1.0f);
-                switch (def_type)
-                {
-                    case type.Fire:
-                        damage = 2;
-                        break;
-                    case type.Water:
-                        damage = 1;
-                        break;
-                    case type.Earth:
-                        damage = 0;
-                        break;
-                    default:
-                        damage = 1;
-                        break;
-                }
-                break;
+			break;
 		case type.Earth:
 			audSource.PlayOneShot (grassCut, 1.0f);
-                switch (def_type)
-                {
-                    case type.Fire:
-                        damage = 0;
-                        break;
-                    case type.Water:
-                        damage = 2;
-                        break;
-                    case type.Earth:
-                        damage = 1;
-                        break;
-                    default:
-                        damage = 1;
-                        break;
-                }
-                break;
+			break;
 		default:
-                damage = 1;
-                break;
+			throw new UnityException ("play_data.DoAttack: Invalid elemental type!");
 		}
 
+		type def_type = defense_type[def_col, def_row];
+		int damage = ComputeDamageForElements(def_type, element);
         defense[def_col, def_row] -= damage;
         tiles[def_col, def_row].DisplayScoreChange(-damage);
         if (player_resource [whosturn, type2int(element)] > 0) {
@@ -655,6 +608,56 @@ public class play_data : MonoBehaviour {
 
 		// make the tile shake :)
 		tiles[def_col, def_row].shake_delay = 0.5f;
+	}
+
+	/// <summary>
+	/// Computes the damage given an attacker's element and defender's element.
+	/// </summary>
+	/// <returns>damange ammount</returns>
+	/// <param name="defender_el">defender's element</param>
+	/// <param name="attacker_el">attacker's element</param>
+	static int ComputeDamageForElements(type defender_el, type attacker_el) {
+		const string INVALID_EL_TXT = "play_data.ComputeDamageForElements: Invalid elemental type!";
+		switch (attacker_el) {
+		case type.Fire:
+			switch (defender_el) {
+			case type.Fire:
+				return 1;
+			case type.Water:
+				return 0;
+			case type.Earth:
+				return 2;
+			default:
+				throw new UnityException (INVALID_EL_TXT);
+			}
+			break;
+		case type.Water:
+			switch (defender_el) {
+			case type.Fire:
+				return 2;
+			case type.Water:
+				return 1;
+			case type.Earth:
+				return 0;
+			default:
+				throw new UnityException (INVALID_EL_TXT);
+			}
+			break;
+		case type.Earth:
+			switch (defender_el) {
+			case type.Fire:
+				return 0;
+			case type.Water:
+				return 2;
+			case type.Earth:
+				return 1;
+			default:
+				throw new UnityException (INVALID_EL_TXT);
+			}
+			break;
+		default:
+			throw new UnityException (INVALID_EL_TXT);
+		}
 	}
 
 	/// <summary>
