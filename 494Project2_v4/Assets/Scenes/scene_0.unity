@@ -2036,6 +2036,7 @@ MonoBehaviour:
   lowPitchRange: 0.75
   highPitchRange: 1.25
   tilePrefab: {fileID: 11488328, guid: 467fd59305fdd324ca02c5a184876273, type: 2}
+  superWeaponPrefab: {fileID: 11472040, guid: e99faa156e12d364885f3aecdf15205c, type: 2}
   current_select_col: 0
   current_select_row: 0
   tiles_owned: 00000000000000000000000000000000

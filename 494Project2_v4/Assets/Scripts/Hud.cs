@@ -61,49 +61,60 @@ public class Hud : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		
-		
+		int cur_row = play_data.instance.current_select_row;
+		int cur_col = play_data.instance.current_select_col;
+		int whos_turn = play_data.instance.whosturn;
 
         if (play_data.instance.game_start)
         {
             Continue_text.text = "Continue";
-            guicame.backgroundColor = play_data.OwnerIntToColor(play_data.instance.whosturn);
+			guicame.backgroundColor = play_data.OwnerIntToColor(whos_turn);
         }
 
-        location_text.text = "Row: " + play_data.instance.current_select_col.ToString() + "      Column: " + play_data.instance.current_select_row.ToString();
-        if (play_data.instance.owner[play_data.instance.current_select_col, play_data.instance.current_select_row]==-1)
+		location_text.text = "Row: " + cur_col.ToString() + "      Column: " + cur_row.ToString();
+		if (play_data.instance.owner[cur_col, cur_row] == -1)
         {
             owner_text.text = "Owners: None";
         }
         else
         {
-            owner_text.text = "Owners: Player_" + play_data.instance.owner[play_data.instance.current_select_col, play_data.instance.current_select_row].ToString();
+			owner_text.text = "Owner: Player_" + play_data.instance.owner[cur_col, cur_row].ToString();
         } 
-        type_text.text = "Type: " + play_data.instance.tile_type[play_data.instance.current_select_col, play_data.instance.current_select_row].ToString();
-        remaining_text.text = "Remaining: " + play_data.instance.remaining[play_data.instance.current_select_col, play_data.instance.current_select_row].ToString();
-        if (play_data.instance.defense_type[play_data.instance.current_select_col, play_data.instance.current_select_row] == type.Empty)
+		type_text.text = "Type: " + play_data.instance.tile_type[cur_col, cur_row].ToString();
+		remaining_text.text = "Remaining: " + play_data.instance.remaining[cur_col, cur_row].ToString();
+        if (play_data.instance.defense_type[cur_col, cur_row] == type.Empty)
         {
             defense_text.text = "Defense: None";
         }
         else
         {
-            defense_text.text = "Defense: " + play_data.instance.defense[play_data.instance.current_select_col, play_data.instance.current_select_row].ToString()
-                          + "     type: " + play_data.instance.defense_type[play_data.instance.current_select_col, play_data.instance.current_select_row].ToString();
+            defense_text.text = "Defense: " + play_data.instance.defense[cur_col, cur_row].ToString()
+                          + "     type: " + play_data.instance.defense_type[cur_col, cur_row].ToString();
         }
 
         info_text.fontSize = 8;
-        info_text.text = "Player_" + play_data.instance.whosturn.ToString() + "'s turn   " + play_data.instance.moves_remain.ToString()+"/2"
-                        + "\nFire: " + play_data.instance.player_resource[play_data.instance.whosturn, 0].ToString()+"/"+ play_data.instance.player_income[play_data.instance.whosturn, 0].ToString()
-                        + "\nWater: " + play_data.instance.player_resource[play_data.instance.whosturn, 1].ToString() + "/" + play_data.instance.player_income[play_data.instance.whosturn, 1].ToString()
-                        + "\nGrass: " + play_data.instance.player_resource[play_data.instance.whosturn, 2].ToString() + "/" + play_data.instance.player_income[play_data.instance.whosturn, 2].ToString();
+		info_text.text = "Player_" + whos_turn.ToString() + "'s turn   " + play_data.instance.moves_remain.ToString()+"/2"
+			+ "\nFire: " + play_data.instance.player_resource[whos_turn, 0].ToString()+"/"+ play_data.instance.player_income[whos_turn, 0].ToString()
+			+ "\nWater: " + play_data.instance.player_resource[whos_turn, 1].ToString() + "/" + play_data.instance.player_income[whos_turn, 1].ToString()
+			+ "\nGrass: " + play_data.instance.player_resource[whos_turn, 2].ToString() + "/" + play_data.instance.player_income[whos_turn, 2].ToString();
 
-        if (play_data.instance.moves_remain!=0 && play_data.instance.IsSelectable[play_data.instance.current_select_col, play_data.instance.current_select_row])
+		// select possible player actions
+        if (play_data.instance.moves_remain != 0 && play_data.instance.IsSelectable[cur_col, cur_row])
         {
             #region if you still have move and selectable
             //need path_find function to determine if it's accessible
-            if (play_data.instance.owner[play_data.instance.current_select_col, play_data.instance.current_select_row] == -1) //if the tile has no owner
-            {
-                if (play_data.instance.tile_type[play_data.instance.current_select_col, play_data.instance.current_select_row] == type.Empty)
-                {
+
+			// for super weapon: user selects a tile 
+			if (SuperWeapon.instance.col == cur_col && SuperWeapon.instance.row == cur_row && SuperWeapon.instance.owner == whos_turn) {
+				option_0.interactable = option_1.interactable = option_2.interactable = false;
+				option_0_text.text = option_1_text.text = option_2_text.text = "";
+				if (SuperWeapon.instance.at_max_charge) {
+					option_0.interactable = true;
+					option_0_text.text = "Activate Super Weapon";
+				}
+			} else if (play_data.instance.owner[cur_col, cur_row] == -1) {
+				// if the tile has no owner
+                if (play_data.instance.tile_type[cur_col, cur_row] == type.Empty) {
                     option_0_text.text = "Claim";
                     option_1_text.text = "";
                     option_2_text.text = "";
@@ -113,6 +124,7 @@ public class Hud : MonoBehaviour {
                 }
                 else
                 {
+					// unowned resource
                     option_0_text.text = "Claim one-time";
                     option_1_text.text = "Claim long-term";
                     option_2_text.text = "";
@@ -120,69 +132,60 @@ public class Hud : MonoBehaviour {
                     option_1.interactable = true;
                     option_2.interactable = false;
                 }
-
-            }
-            else if (play_data.instance.owner[play_data.instance.current_select_col, play_data.instance.current_select_row] == play_data.instance.whosturn)// Defense (tile's owner = player of current turn)
-            {
+			} else if (play_data.instance.owner[cur_col, cur_row] == whos_turn) {
+				// Defense (tile's owner = player of current turn)
                 option_0_text.text = "Fire Defend";
                 option_1_text.text = "Water Defend";
                 option_2_text.text = "Grass Defend";
-                switch (play_data.instance.defense_type[play_data.instance.current_select_col, play_data.instance.current_select_row])
-                {
+                switch (play_data.instance.defense_type[cur_col, cur_row]) {
                     case type.Fire:
-                        if (play_data.instance.player_resource[play_data.instance.whosturn, 0] > 0) option_0.interactable = true;//replace 0 with cost to defend
-                        else option_0.interactable = false;
+						if (play_data.instance.player_resource[whos_turn, 0] > 0) 
+							option_0.interactable = true;//replace 0 with cost to defend
+                        else 
+							option_0.interactable = false;
                         option_1.interactable = false;
                         option_2.interactable = false;
                         break;
                     case type.Water:
                         option_0.interactable = false;
-                        if (play_data.instance.player_resource[play_data.instance.whosturn, 1] > 0) option_1.interactable = true;
-                        else option_1.interactable = false;
+						if (play_data.instance.player_resource[whos_turn, 1] > 0) 
+							option_1.interactable = true;
+                        else 
+							option_1.interactable = false;
                         option_2.interactable = false;
                         break;
                     case type.Earth:
                         option_0.interactable = false;
                         option_1.interactable = false;
-                        if (play_data.instance.player_resource[play_data.instance.whosturn, 2] > 0) option_2.interactable = true;
-                        else option_2.interactable = false;
+						if (play_data.instance.player_resource[whos_turn, 2] > 0) 
+							option_2.interactable = true;
+                        else
+							option_2.interactable = false;
                         break;
                     case type.Empty:
-                        if (play_data.instance.player_resource[play_data.instance.whosturn, 0] > 0) option_0.interactable = true;
-                        else option_0.interactable = false;
-                        if (play_data.instance.player_resource[play_data.instance.whosturn, 1] > 0) option_1.interactable = true;
-                        else option_1.interactable = false;
-                        if (play_data.instance.player_resource[play_data.instance.whosturn, 2] > 0) option_2.interactable = true;
-                        else option_2.interactable = false;
+						if (play_data.instance.player_resource[whos_turn, 0] > 0)
+							option_0.interactable = true;
+                        else
+							option_0.interactable = false;
+						if (play_data.instance.player_resource[whos_turn, 1] > 0)
+							option_1.interactable = true;
+                        else 
+							option_1.interactable = false;
+						if (play_data.instance.player_resource[whos_turn, 2] > 0) 
+							option_2.interactable = true;
+                        else
+							option_2.interactable = false;
                         break;
                 }
             }
             else //Attack(tile's owner != player of current turn)
             {
-                if (play_data.instance.player_resource[play_data.instance.whosturn, 0] > 0)
-                {//replace 0 with cost to attack
-                    option_0.interactable = true;
-                }
-                else
-                {
-                    option_0.interactable = false;
-                }
-                if (play_data.instance.player_resource[play_data.instance.whosturn, 1] > 0)
-                {
-                    option_1.interactable = true;
-                }
-                else
-                {
-                    option_1.interactable = false;
-                }
-                if (play_data.instance.player_resource[play_data.instance.whosturn, 2] > 0)
-                {
-                    option_2.interactable = true;
-                }
-                else
-                {
-                    option_2.interactable = false;
-                }
+				//replace 0 with cost to attack
+                // done! -AJ
+				option_0.interactable = (play_data.instance.player_resource[whos_turn, 0] > play_data.COST_TO_ATTACK);
+				option_1.interactable = (play_data.instance.player_resource[whos_turn, 1] > play_data.COST_TO_ATTACK);
+				option_2.interactable = (play_data.instance.player_resource[whos_turn, 2] > play_data.COST_TO_ATTACK);
+
                 option_0_text.text = "Fire Attack";
                 option_1_text.text = "Water Attack";
                 option_2_text.text = "Grass Attack";

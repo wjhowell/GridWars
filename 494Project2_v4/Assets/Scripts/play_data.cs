@@ -39,6 +39,7 @@ public class play_data : MonoBehaviour {
     public int[,] defense = new int[14, 10];
     public bool[,] IsSelectable = new bool[14, 10];
 	public tile[,] tiles;
+	public SuperWeapon superWeaponPrefab;
     //select data
     public int current_select_col;
     public int current_select_row;
@@ -160,8 +161,33 @@ public class play_data : MonoBehaviour {
             }
         }
 
+		// setup super weapon somewhere
+		SetupSuperWeapon();
+
         UpdateSelectableTiles();
     }
+
+	/// <summary>
+	/// Along with the rest of board, after initial player tiles have been set.
+	/// </summary>
+	void SetupSuperWeapon() {
+		int col = tiles.GetLength (0) / 2;
+		int row = tiles.GetLength (1) / 2;
+		if (SuperWeapon.instance == null) {
+			SuperWeapon sw = Instantiate<SuperWeapon> (superWeaponPrefab);
+			sw.GetComponent<Transform> ().position = new Vector3 (col, row, -0.3f);
+		}
+	}
+
+	Vector2 FindFirstTileOwnedBy(int owner) {
+		for (int x = 0; x != tiles.GetLength(0); ++x) {
+			for (int y = 0; y != tiles.GetLength(1); ++y) {
+				if (tiles[x, y].owner == owner)
+					return new Vector2 (x, y);
+			}
+		}
+		return new Vector2 (-1, -1);
+	}
 
     void SetupBlankBoard(int cols, int rows)
     {
@@ -529,6 +555,10 @@ public class play_data : MonoBehaviour {
         Hud.instance.Panel3.gameObject.SetActive(false);
     }
 
+	public static int COST_TO_ATTACK {
+		get { return 1; }
+	}
+
     /// <summary>
     /// Performs an elemental attack onto a (an enemy's) tile.
     /// :TODO: what if attacker does not have sufficient resoures to attack.
@@ -605,7 +635,8 @@ public class play_data : MonoBehaviour {
         defense[def_col, def_row] -= damage;
         tiles[def_col, def_row].DisplayScoreChange(-damage);
         if (player_resource [whosturn, type2int(element)] > 0) {
-			player_resource [whosturn, type2int(element)] -= 1;
+			// resource cost here!
+			player_resource [whosturn, type2int(element)] -= COST_TO_ATTACK;
 		} else {
 			// tell player, insufficent resoures
 			// better yet, grey out the box
