@@ -17,6 +17,7 @@ public struct coordinate {
 
 public class play_data : MonoBehaviour {
     public static play_data instance;
+    public bool game_start;
 	//Audio
 	public AudioSource audSource;
 	public AudioClip fireball;
@@ -44,6 +45,7 @@ public class play_data : MonoBehaviour {
     //4 player data in order of Fire, Water, Earth
     public int[,] player_resource = new int[4,3];
     public int[,] player_income = new int[4, 3];
+    public int[] tiles_owned = new int[4];
     //public List<coordinate>[] player_property = new List<coordinate>[4];
     //turn moves
     public int moves_remain;
@@ -52,13 +54,6 @@ public class play_data : MonoBehaviour {
     public Sprite[] fire;
     public Sprite[] water;
     public Sprite[] earth;
-    // tiles owned by players
-    public int[] tiles_owned = new int[4];
-
-    //public coordinate[] player_0;
-    //public coordinate[] player_1;
-    //public coordinate[] player_2;
-    //public coordinate[] player_3;
 
     public List<coordinate>[] player_mine = new List<coordinate>[4];
 
@@ -67,14 +62,16 @@ public class play_data : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-		audSource = GetComponent<AudioSource> ();
+        game_start = false;
+        audSource = GetComponent<AudioSource> ();
 
         moves_remain = 2;
         whosturn = 0;
         instance = this;
-        SetupBoard(14, 10);
+        //SetupBlankBoard(14, 10);
         for (int p=0; p < 4; p++)
         {
+            tiles_owned[p] = 0;
             for(int q=0; q < 3; q++)
             {
                 player_resource[p, q] = 0;
@@ -87,19 +84,17 @@ public class play_data : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         
-		// // breaks HUD/play_data code (no unavailabity checking on play_data level)
-		// if (Input.GetKeyDown (KeyCode.Q)) {
-		// 	option_0 ();
-		// } else if (Input.GetKeyDown (KeyCode.A)) {
-		// 	option_1 ();
-		// } else if (Input.GetKeyDown (KeyCode.Z)) {
-		// 	option_2 ();
-		// } else if (Input.GetKeyDown (KeyCode.X)) {
-		// 	next_turn ();
-		// }
+		// breaks HUD/play_data code (no unavailabity checking on play_data level)
+		if (Input.GetKeyDown (KeyCode.Q)) {
+			option_0 ();
+		} else if (Input.GetKeyDown (KeyCode.A)) {
+			option_1 ();
+		} else if (Input.GetKeyDown (KeyCode.Z)) {
+			option_2 ();
+		} else if (Input.GetKeyDown (KeyCode.X)) {
+			next_turn ();
+		}
 	}
-
-
 
     void SetupBoard(int cols, int rows)
     {
@@ -142,19 +137,14 @@ public class play_data : MonoBehaviour {
         }
 
 
-        owner[4, 2] = 0;
-        owner[4, 7] = 1;
-        owner[9, 7] = 2;
-        owner[9, 2] = 3;
-        tile_type[4, 2] = type.Empty;
-        tile_type[4, 7] = type.Empty;
-        tile_type[9, 7] = type.Empty;
-        tile_type[9, 2] = type.Empty;
-        tiles_owned[0] = 1;
-	    tiles_owned[1] = 1;
-	    tiles_owned[2] = 1;
-	    tiles_owned[3] = 1;
-
+        owner[0, 0] = 0;
+        owner[0, 9] = 1;
+        owner[13, 9] = 2;
+        owner[13, 0] = 3;
+        tile_type[0, 0] = type.Empty;
+        tile_type[0, 9] = type.Empty;
+        tile_type[13, 9] = type.Empty;
+        tile_type[13, 0] = type.Empty;
         for (int p = 0; p < 14; p++)
         {
             for (int q = 0; q < 10; q++)
@@ -167,6 +157,34 @@ public class play_data : MonoBehaviour {
         }
 
         UpdateSelectableTiles();
+    }
+
+    void SetupBlankBoard(int cols, int rows)
+    {
+        owner = new int[cols, rows];
+        tile_type = new type[cols, rows];
+        remaining = new int[cols, rows];
+        defense_type = new type[cols, rows];
+        defense = new int[cols, rows];
+        tiles = new tile[cols, rows];
+        for (int x = 0; x != cols; ++x)
+        {
+            for (int y = 0; y != rows; ++y)
+            {
+                owner[x, y] = -1;
+                defense_type[x, y] = tile_type[x, y] = type.Empty;
+                remaining[x, y] = 0;
+                defense[x, y] = 0;
+                tile nt = Instantiate<tile>(tilePrefab);
+                //nt.GetComponent<Transform>().position = new Vector3((float)x, (float)y, 0f);
+                nt.GetComponent<Transform>().position = new Vector3((float)x, (float)y + 10.0f + 10.0f * Random.value, 0f);
+                nt.GetComponent<Rigidbody>().velocity = new Vector3(0f, -20.0f, 0f);
+                nt.col = x;
+                nt.row = y;
+                nt.owner = -1;
+                tiles[x, y] = nt;
+            }
+        }
     }
 
     public void UpdateSelectableTiles() {
@@ -204,51 +222,188 @@ public class play_data : MonoBehaviour {
     {
 		audSource.PlayOneShot (endTurn, 1.5f);
         whosturn++;
-        moves_remain = 2;
-
-
-
         if (whosturn == 4)
         {
             whosturn = 0;
         }
-
-
-        // make sure player is still in game
-        while(tiles_owned[whosturn] <= 0){
-        	whosturn++;
-			if (whosturn == 4)
-			{
-				whosturn = 0;
-			}
-        }
-
+        moves_remain = 2;
 
         for (int p = 0; p < 3; p++)
         {
-            player_resource[whosturn, p] += player_income[whosturn, p];
+                player_resource[whosturn, p] += player_income[whosturn, p];
         }
-        for (int p = 0; p < 14; p++)
+        for (int col = 0; col < 14; col++)
         {
-            for (int q = 0; q < 10; q++)
+            for (int row = 0; row < 10; row++)
             {
-                if (owner[p, q] == whosturn && tile_type[p,q]!=type.Empty&& remaining[p, q]!=10)
+                if (owner[col, row] == whosturn && tile_type[col, row]!=type.Empty&& remaining[col, row] !=10)
                 {
-					tiles [p, q].DisplayScoreChange (1);
-                    remaining[p, q] --;
-                    if (remaining[p, q] == 0)
+                    remaining[col, row] --;
+                    if (remaining[col, row] == 0)
                     {
-                        player_income[whosturn, type2int(tile_type[p, q])]--;
-                        tile_type[p, q] = type.Empty;
+                        player_income[whosturn, type2int(tile_type[col, row])]--;
+                        tile_type[col, row] = type.Empty;
                     }
                 }
             }
         }
+
+        random_events();
+
+
+
         UpdateSelectableTiles();
     }
 
+    public void random_events()
+    {
+        float seed = Random.value;
+        #region randomly get/lost resources
+        if (seed < 0.04)
+        {
+            Hud.instance.Panel1.gameObject.SetActive(false);
+            Hud.instance.Panel2.gameObject.SetActive(false);
+            Hud.instance.Panel3.gameObject.SetActive(true);
+            player_resource[whosturn, 0] += 10;
+            Hud.instance.instruction_text.text = "Congratulations!\nA volcano erupts and you picked up 10 fire.";
+            Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = fire[0];
+            return;
+        }
+        else if (seed < 0.08)
+        {
+            Hud.instance.Panel1.gameObject.SetActive(false);
+            Hud.instance.Panel2.gameObject.SetActive(false);
+            Hud.instance.Panel3.gameObject.SetActive(true);
+            player_resource[whosturn, 1] += 10;
+            Hud.instance.instruction_text.text = "Congratulations!\nIt's raining and you picked up 10 water.";
+            Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = water[0];
+            return;
+        }
+        else if (seed < 0.12)
+        {
+            Hud.instance.Panel1.gameObject.SetActive(false);
+            Hud.instance.Panel2.gameObject.SetActive(false);
+            Hud.instance.Panel3.gameObject.SetActive(true);
+            player_resource[whosturn, 2] += 10;
+            Hud.instance.instruction_text.text = "Congratulations!\nYou just picked up 10 grass in the wild.";
+            Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = earth[0];
+            return;
+        }
+        else if (seed < 0.16)
+        {
+            if (player_resource[whosturn, 0] >= 10)
+            {
+                Hud.instance.Panel1.gameObject.SetActive(false);
+                Hud.instance.Panel2.gameObject.SetActive(false);
+                Hud.instance.Panel3.gameObject.SetActive(true);
+                player_resource[whosturn, 0] -= 10;
+                Hud.instance.instruction_text.text = "I'm sorry\nAliens just robbed you for 10 fire.";
+                Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = fire[0];
+                return;
+            }
+            else {
+                return;
+            }
+            
+        }
+        else if (seed < 0.20)
+        {
+            if (player_resource[whosturn, 1] >= 10)
+            {
+                Hud.instance.Panel1.gameObject.SetActive(false);
+                Hud.instance.Panel2.gameObject.SetActive(false);
+                Hud.instance.Panel3.gameObject.SetActive(true);
+                player_resource[whosturn, 1] -= 10;
+                Hud.instance.instruction_text.text = "I'm sorry\nAliens just robbed you for 10 water.";
+                Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = water[0];
+                return;
+            }
+            else
+            {
+                return;
+            }
+        }
+        else if (seed < 0.24)
+        {
+            if (player_resource[whosturn, 2] >= 10)
+            {
+                Hud.instance.Panel1.gameObject.SetActive(false);
+                Hud.instance.Panel2.gameObject.SetActive(false);
+                Hud.instance.Panel3.gameObject.SetActive(true);
+                player_resource[whosturn, 2] -= 10;
+                Hud.instance.instruction_text.text = "I'm sorry\nAliens just robbed you for 10 grass.";
+                Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = earth[0];
+                return;
+            }
+            else
+            {
+                return;
+            }
+        }
+        #endregion
+        #region randomly get tiles
+        else if (seed <0.36)
+        {
+            if (tiles_owned[0]+ tiles_owned[1]+ tiles_owned[2]+ tiles_owned[3]>=120)
+            {
+                return;
+            }
+            else
+            {
+                int map_col = 14;
+                int map_row = 10;
+                int seed_col = Random.Range(0, map_col);
+                int seed_row = Random.Range(0, map_row);
+                while (owner[seed_col,seed_row]!=-1)
+                {
+                    seed_col = Random.Range(0, map_col);
+                    seed_row = Random.Range(0, map_row);
+                }
+                owner[seed_col, seed_row] = whosturn;
 
-    // one time claim
+                Hud.instance.Panel1.gameObject.SetActive(false);
+                Hud.instance.Panel2.gameObject.SetActive(false);
+                Hud.instance.Panel3.gameObject.SetActive(true);
+                Hud.instance.instruction_text.text = "Congratulations!\n Your troop just claim tile("+ seed_col.ToString()+","+ seed_row.ToString()+")!";
+                switch(tile_type[seed_col, seed_row]){
+                    case type.Empty:
+                        Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = empty[whosturn + 1];
+                        break;
+                    case type.Fire:
+                        Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = fire[whosturn + 1];
+                        player_income[whosturn, 0]++;
+                        player_resource[whosturn, 0]++;
+                        remaining[seed_col, seed_row]--;
+                        Hud.instance.instruction_text.text += "\nFire income+1!";
+                        break;
+                    case type.Water:
+                        Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = water[whosturn + 1];
+                        player_income[whosturn, 1]++;
+                        player_resource[whosturn, 1]++;
+                        remaining[seed_col, seed_row]--;
+                        Hud.instance.instruction_text.text += "\nWater income+1!";
+                        break;
+                    case type.Earth:
+                        Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = earth[whosturn + 1];
+                        player_income[whosturn, 2]++;
+                        player_resource[whosturn, 2]++;
+                        remaining[seed_col, seed_row]--;
+                        Hud.instance.instruction_text.text += "\nGrass income+1!";
+                        break;
+
+                }
+                return;
+            }
+            
+
+        }
+        #endregion
+        else
+        {
+            return;
+        }
+    }
+
     public void option_0()
     {
         moves_remain--;
@@ -256,19 +411,22 @@ public class play_data : MonoBehaviour {
         {
 			audSource.pitch = Random.Range (lowPitchRange, highPitchRange);
 			audSource.PlayOneShot (claim, 1.5f);
+
             owner[current_select_col, current_select_row] = whosturn;  
             remaining[current_select_col, current_select_row] = 0;
 			int type_index = type2int(tile_type [current_select_col, current_select_row]);
-			if (type_index != -1) {
-				tiles [current_select_col, current_select_row].DisplayScoreChange (5);
-				player_resource [whosturn, type_index] += 5;
-			}
+			if (type_index != -1)
+				player_resource[whosturn, type_index] += 5;
             tile_type[current_select_col, current_select_row] = type.Empty;
-            ++tiles_owned[whosturn];
         }
         else if (owner[current_select_col, current_select_row] == whosturn) //Fire Defense
         {
-			DoDefense(type.Fire);
+			audSource.pitch = 1.0f + defense [current_select_col, current_select_row]/10f;
+			audSource.PlayOneShot (defend, 1.0f);
+
+            defense_type[current_select_col, current_select_row] = type.Fire;
+            defense[current_select_col, current_select_row]++;
+            player_resource[whosturn, 0] -= 5;
         }
         else //Fire attack
         {
@@ -277,7 +435,6 @@ public class play_data : MonoBehaviour {
         UpdateSelectableTiles();
     }
 
-    // long term claim
     public void option_1()
     {
         moves_remain--;
@@ -287,8 +444,6 @@ public class play_data : MonoBehaviour {
 			audSource.PlayOneShot (claim, 1.5f);
 
             owner[current_select_col, current_select_row] = whosturn;
-            ++tiles_owned[whosturn];
-			tiles [current_select_col, current_select_row].DisplayScoreChange (1);
             //coordinate temp = new coordinate(current_select_col, current_select_row);
             //player_property[whosturn].Add(temp);
             switch (tile_type[current_select_col, current_select_row])
@@ -314,7 +469,12 @@ public class play_data : MonoBehaviour {
         }
         else if (owner[current_select_col, current_select_row] == whosturn)//Water Defense
         {
-			DoDefense(type.Water);
+			audSource.pitch = 1.0f + defense [current_select_col, current_select_row]/10f;
+			audSource.PlayOneShot (defend, 1.0f);
+
+            defense_type[current_select_col, current_select_row] = type.Water;
+            defense[current_select_col, current_select_row]++;
+            player_resource[whosturn, 1] -= 5;
         }
         else //Water attack
         { 
@@ -327,7 +487,12 @@ public class play_data : MonoBehaviour {
         moves_remain--;
         if (owner[current_select_col, current_select_row] == whosturn)//Earth Defense
         {
-			DoDefense(type.Earth);
+			audSource.pitch = 1.0f + defense [current_select_col, current_select_row]/10f;
+			audSource.PlayOneShot (defend, 1.0f);
+
+            defense_type[current_select_col, current_select_row] = type.Earth;
+            defense[current_select_col, current_select_row]++;
+            player_resource[whosturn, 2] -= 5;
         }
         else //Earth attack
         {
@@ -336,111 +501,59 @@ public class play_data : MonoBehaviour {
         UpdateSelectableTiles();
     }
 
-    void DoDefense(type element){
-		tiles [current_select_col, current_select_row].DisplayScoreChange (1);
-    	audSource.pitch = 1.0f + defense [current_select_col, current_select_row] / 10f;
-		audSource.PlayOneShot (defend, 1.0f);
-        defense_type[current_select_col, current_select_row] = element;
-        defense[current_select_col, current_select_row]++;
-        player_resource[whosturn, type2int(element)] -= 1;
+    public void Continue()
+    {
+        if (!game_start)
+        {
+            SetupBoard(14, 10);
+            game_start = true;
+            GameObject.Find("Start").SetActive(false);
+        }
+        Hud.instance.Panel1.gameObject.SetActive(true);
+        Hud.instance.Panel2.gameObject.SetActive(true);
+        Hud.instance.Panel3.gameObject.SetActive(false);
     }
 
-	/// <summary>
-	/// Performs an elemental attack onto a (an enemy's) tile.
-	/// :TODO: what if attacker does not have sufficient resoures to attack.
-	/// </summary>
-	/// <param name="def_col">Defender's column.</param>
-	/// <param name="def_row">Defender's row.</param>
-	/// <param name="element">Element of the attack.</param>
-	/// <param name="current_turn">Player index, for who's current turn.</param>
-	void DoAttack(int def_col, int def_row, type element, int current_turn) {
-		
+    /// <summary>
+    /// Performs an elemental attack onto a (an enemy's) tile.
+    /// :TODO: what if attacker does not have sufficient resoures to attack.
+    /// </summary>
+    /// <param name="def_col">Defender's column.</param>
+    /// <param name="def_row">Defender's row.</param>
+    /// <param name="element">Element of the attack.</param>
+    /// <param name="current_turn">Player index, for who's current turn.</param>
+    void DoAttack(int def_col, int def_row, type element, int current_turn) {
 		//Audio
 		audSource.pitch = Random.Range (lowPitchRange, highPitchRange);
-		
-
-		type def_type = defense_type[def_col, def_row];
-		int damage = 0;
 		switch (element) {
 		case type.Fire:
 			audSource.PlayOneShot (fireball, 1.0f);
-			switch (def_type) {
-			case type.Fire:
-				damage = 1;
-				break;
-			case type.Water:
-				damage = 0;
-				break;
-			case type.Earth:
-				damage = 2;
-				break;
-			default:
-				damage = 1;
-				break;
-			}
 			break;
-
 		case type.Water:
 			audSource.PlayOneShot (waterSplash, 1.0f);
-			switch (def_type) {
-			case type.Fire:
-				damage = 2;
-				break;
-			case type.Water:
-				damage = 1;
-				break;
-			case type.Earth:
-				damage = 0;
-				break;
-			default:
-				damage = 1;
-				break;
-			}
 			break;
-
 		case type.Earth:
 			audSource.PlayOneShot (grassCut, 1.0f);
-			switch (def_type) {
-			case type.Fire:
-				damage = 0;
-				break;
-			case type.Water:
-				damage = 2;
-				break;
-			case type.Earth:
-				damage = 1;
-				break;
-			default:
-				damage = 1;
-				break;
-			}
 			break;
 		default:
-			damage = 1;
 			break;
 		}
 
-
-		defense [def_col, def_row] -= damage;
-		tiles [def_col, def_row].DisplayScoreChange (-damage);
-		
+		defense [def_col, def_row]--;
 		if (player_resource [whosturn, type2int(element)] > 0) {
-			player_resource [whosturn, type2int(element)] -= 1;
-		}
-		else {
+			player_resource [whosturn, type2int(element)] -= 5;
+		} else {
 			// tell player, insufficent resoures
 			// better yet, grey out the box
 			++moves_remain;
 		}
 
 		// barrier down, player takes immediately
-		if (defense[def_col, def_row] < 0)
+		if (defense[def_col, def_row] <= 0)
 		{
 			defense_type[def_col, def_row] = type.Empty;
 			defense[def_col, def_row] = 0;
-			--tiles_owned[owner[def_col, def_row]];
 			owner[def_col, def_row] = current_turn;
-			++tiles_owned[current_turn];
 		}
 
 		// make the tile shake :)
@@ -521,5 +634,4 @@ public class play_data : MonoBehaviour {
 		}
 		throw new UnityException ("Invalid owner number");
 	}
-		
 }
