@@ -224,12 +224,13 @@ public class play_data : MonoBehaviour {
         {
             player_resource[whosturn, p] += player_income[whosturn, p];
         }
-        for (int p = 0; p < 3; p++)
+        for (int p = 0; p < 14; p++)
         {
-            for (int q = 0; q < 3; q++)
+            for (int q = 0; q < 10; q++)
             {
                 if (owner[p, q] == whosturn && tile_type[p,q]!=type.Empty&& remaining[p, q]!=10)
                 {
+					tiles [p, q].DisplayScoreChange (1);
                     remaining[p, q] --;
                     if (remaining[p, q] == 0)
                     {
@@ -283,6 +284,7 @@ public class play_data : MonoBehaviour {
 
             owner[current_select_col, current_select_row] = whosturn;
             ++tiles_owned[whosturn];
+			tiles [current_select_col, current_select_row].DisplayScoreChange (1);
             //coordinate temp = new coordinate(current_select_col, current_select_row);
             //player_property[whosturn].Add(temp);
             switch (tile_type[current_select_col, current_select_row])
@@ -331,6 +333,7 @@ public class play_data : MonoBehaviour {
     }
 
     void DoDefense(type element){
+		tiles [current_select_col, current_select_row].DisplayScoreChange (1);
     	audSource.pitch = 1.0f + defense [current_select_col, current_select_row] / 10f;
 		audSource.PlayOneShot (defend, 1.0f);
         defense_type[current_select_col, current_select_row] = element;
@@ -415,6 +418,7 @@ public class play_data : MonoBehaviour {
 
 
 		defense [def_col, def_row] -= damage;
+		tiles [def_col, def_row].DisplayScoreChange (-damage);
 		
 		if (player_resource [whosturn, type2int(element)] > 0) {
 			player_resource [whosturn, type2int(element)] -= 1;
