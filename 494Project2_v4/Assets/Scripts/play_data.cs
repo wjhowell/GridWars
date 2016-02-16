@@ -40,6 +40,7 @@ public class play_data : MonoBehaviour {
     public bool[,] IsSelectable = new bool[14, 10];
 	public tile[,] tiles;
 	public SuperWeapon superWeaponPrefab;
+	public SuperWeaponSelector superWeaponSelectorPrefab;
     //select data
     public int current_select_col;
     public int current_select_row;
@@ -176,6 +177,10 @@ public class play_data : MonoBehaviour {
 		if (SuperWeapon.instance == null) {
 			SuperWeapon sw = Instantiate<SuperWeapon> (superWeaponPrefab);
 			sw.GetComponent<Transform> ().position = new Vector3 (col, row, -0.3f);
+			tile_type [col, row] = tiles [col, row].tile_type = type.Empty;
+			sw.col = col;
+			sw.row = row;
+			sw.owner = -1;
 		}
 	}
 
@@ -292,7 +297,7 @@ public class play_data : MonoBehaviour {
 
         UpdateSelectableTiles();
 		if (SuperWeapon.instance)
-			SuperWeapon.instance.OnNextTurn ();
+			SuperWeapon.instance.OnNextTurn (whosturn);
     }
 
     public void random_events()
@@ -405,6 +410,10 @@ public class play_data : MonoBehaviour {
                 Hud.instance.Panel2.gameObject.SetActive(false);
                 Hud.instance.Panel3.gameObject.SetActive(true);
                 Hud.instance.instruction_text.text = "Congratulations!\n Your troop just claim tile("+ seed_col.ToString()+","+ seed_row.ToString()+")!";
+				// claiming super weapon?
+				if (seed_col == SuperWeapon.instance.col && seed_row == SuperWeapon.instance.row) {
+					SuperWeapon.instance.owner = whosturn;
+				}
                 switch(tile_type[seed_col, seed_row]){
                     case type.Empty:
                         Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = empty[whosturn + 1];
@@ -447,7 +456,13 @@ public class play_data : MonoBehaviour {
     public void option_0()
     {
         moves_remain--;
-        if (owner[current_select_col, current_select_row] == -1) //one-time claim
+
+		if (SuperWeapon.instance.col == current_select_col && SuperWeapon.instance.row == current_select_row 
+			&& SuperWeapon.instance.owner == whosturn) {
+			if (SuperWeapon.instance.at_max_charge)
+				Instantiate<SuperWeaponSelector> (superWeaponSelectorPrefab).is_active = true;
+		}
+        else if (owner[current_select_col, current_select_row] == -1) //one-time claim
         {
 			audSource.pitch = Random.Range (lowPitchRange, highPitchRange);
 			audSource.PlayOneShot (claim, 1.5f);
@@ -460,6 +475,10 @@ public class play_data : MonoBehaviour {
                 tiles[current_select_col, current_select_row].DisplayScoreChange(5);
                 player_resource[whosturn, type_index] += 5;
             }
+			// claiming super weapon?
+			if (current_select_col == SuperWeapon.instance.col && current_select_row == SuperWeapon.instance.row) {
+				SuperWeapon.instance.owner = whosturn;
+			}
             tile_type[current_select_col, current_select_row] = type.Empty;
             ++tiles_owned[whosturn];
         }
@@ -477,7 +496,11 @@ public class play_data : MonoBehaviour {
     public void option_1()
     {
         moves_remain--;
-        if (owner[current_select_col, current_select_row] == -1) //long-term claim
+		if (SuperWeapon.instance.col == current_select_col && SuperWeapon.instance.row == current_select_row
+		    && SuperWeapon.instance.owner == whosturn) {
+			// do nothing
+		}
+        else if (owner[current_select_col, current_select_row] == -1) //long-term claim
         {
 			audSource.pitch = Random.Range (lowPitchRange, highPitchRange);
 			audSource.PlayOneShot (claim, 1.5f);
@@ -506,7 +529,10 @@ public class play_data : MonoBehaviour {
                     player_income[whosturn, 2] ++;
                     break;
             }
-
+			// claiming super weapon?
+			if (current_select_col == SuperWeapon.instance.col && current_select_row == SuperWeapon.instance.row) {
+				SuperWeapon.instance.owner = whosturn;
+			}
         }
         else if (owner[current_select_col, current_select_row] == whosturn)//Water Defense
         {
@@ -521,7 +547,11 @@ public class play_data : MonoBehaviour {
     public void option_2()
     {
         moves_remain--;
-        if (owner[current_select_col, current_select_row] == whosturn)//Earth Defense
+		if (SuperWeapon.instance.col == current_select_col && SuperWeapon.instance.row == current_select_row
+		    && SuperWeapon.instance.owner == whosturn) {
+			// do nothing
+		}
+        else if (owner[current_select_col, current_select_row] == whosturn)//Earth Defense
         {
             DoDefense(type.Earth);
         }
@@ -583,11 +613,14 @@ public class play_data : MonoBehaviour {
 			throw new UnityException ("play_data.DoAttack: Invalid elemental type!");
 		}
 
+		// apply damage
 		type def_type = defense_type[def_col, def_row];
 		int damage = ComputeDamageForElements(def_type, element);
         defense[def_col, def_row] -= damage;
         tiles[def_col, def_row].DisplayScoreChange(-damage);
-        if (player_resource [whosturn, type2int(element)] > 0) {
+        
+		// apply cost
+		if (player_resource [whosturn, type2int(element)] > 0) {
 			// resource cost here!
 			player_resource [whosturn, type2int(element)] -= COST_TO_ATTACK;
 		} else {
@@ -596,6 +629,7 @@ public class play_data : MonoBehaviour {
 			++moves_remain;
 		}
 
+		// well I disagree, because then there is no point in defending! -AJ
 		// barrier down, player takes immediately
 		if (defense[def_col, def_row] < 0)
 		{
@@ -604,6 +638,10 @@ public class play_data : MonoBehaviour {
             --tiles_owned[owner[def_col, def_row]];
             owner[def_col, def_row] = current_turn;
             ++tiles_owned[current_turn];
+			// take super weapon
+			if (def_col == SuperWeapon.instance.col && def_row == SuperWeapon.instance.row) {
+				SuperWeapon.instance.owner = current_turn;
+			}
         }
 
 		// make the tile shake :)
@@ -617,7 +655,6 @@ public class play_data : MonoBehaviour {
 	/// <param name="defender_el">defender's element</param>
 	/// <param name="attacker_el">attacker's element</param>
 	static int ComputeDamageForElements(type defender_el, type attacker_el) {
-		const string INVALID_EL_TXT = "play_data.ComputeDamageForElements: Invalid elemental type!";
 		switch (attacker_el) {
 		case type.Fire:
 			switch (defender_el) {
@@ -628,9 +665,8 @@ public class play_data : MonoBehaviour {
 			case type.Earth:
 				return 2;
 			default:
-				throw new UnityException (INVALID_EL_TXT);
+				return 1;
 			}
-			break;
 		case type.Water:
 			switch (defender_el) {
 			case type.Fire:
@@ -640,9 +676,8 @@ public class play_data : MonoBehaviour {
 			case type.Earth:
 				return 0;
 			default:
-				throw new UnityException (INVALID_EL_TXT);
+				return 1;
 			}
-			break;
 		case type.Earth:
 			switch (defender_el) {
 			case type.Fire:
@@ -652,11 +687,10 @@ public class play_data : MonoBehaviour {
 			case type.Earth:
 				return 1;
 			default:
-				throw new UnityException (INVALID_EL_TXT);
+				return 1;
 			}
-			break;
 		default:
-			throw new UnityException (INVALID_EL_TXT);
+			throw new UnityException ("play_data.ComputeDamageForElements: Invalid elemental type!");
 		}
 	}
 

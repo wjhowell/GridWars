@@ -79,5 +79,7 @@ public class SuperWeaponSelector : MonoBehaviour {
 		int target_row = (int)GetComponent<Transform> ().position.y;
 		play_data.instance.DoSuperAttack (target_col, target_row);
 		is_active = false;
+		SuperWeapon.instance.ResetCharge ();
+		Destroy (gameObject);
 	}
 }

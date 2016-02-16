@@ -107,10 +107,10 @@ public class Hud : MonoBehaviour {
 			// for super weapon: user selects a tile 
 			if (SuperWeapon.instance.col == cur_col && SuperWeapon.instance.row == cur_row && SuperWeapon.instance.owner == whos_turn) {
 				option_0.interactable = option_1.interactable = option_2.interactable = false;
-				option_0_text.text = option_1_text.text = option_2_text.text = "";
+				option_1_text.text = option_2_text.text = "";
+				option_0_text.text = SuperWeapon.instance.ActivationText();
 				if (SuperWeapon.instance.at_max_charge) {
 					option_0.interactable = true;
-					option_0_text.text = "Activate Super Weapon";
 				}
 			} else if (play_data.instance.owner[cur_col, cur_row] == -1) {
 				// if the tile has no owner
