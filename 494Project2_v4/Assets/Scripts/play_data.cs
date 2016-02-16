@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -88,15 +89,15 @@ public class play_data : MonoBehaviour {
 	void Update () {
         
 		// breaks HUD/play_data code (no unavailabity checking on play_data level)
-		//if (Input.GetKeyDown (KeyCode.Q)) {
-		//	option_0 ();
-		//} else if (Input.GetKeyDown (KeyCode.A)) {
-		//	option_1 ();
-		//} else if (Input.GetKeyDown (KeyCode.Z)) {
-		//	option_2 ();
-		//} else if (Input.GetKeyDown (KeyCode.X)) {
-		//	next_turn ();
-		//}
+		// if (Input.GetKeyDown (KeyCode.Q)) {
+		// 	option_0 ();
+		// } else if (Input.GetKeyDown (KeyCode.A)) {
+		// 	option_1 ();
+		// } else if (Input.GetKeyDown (KeyCode.Z)) {
+		// 	option_2 ();
+		// } else if (Input.GetKeyDown (KeyCode.X)) {
+		// 	next_turn ();
+		// }
 	}
 
     void SetupBoard(int cols, int rows)
@@ -357,6 +358,9 @@ public class play_data : MonoBehaviour {
                 Hud.instance.Panel3.gameObject.SetActive(true);
                 message = true;
                 player_resource[whosturn, 0] -= 10;
+                if(player_resource[whosturn, 2] < 0){
+                	player_resource[whosturn, 2] = 0;
+                }
             	Hud.instance.instruction_title.text = "-10 resources :(";
                 Hud.instance.instruction_text.text = "I'm sorry\nAliens just robbed you for 10 fire.";
                 Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = fire[0];
@@ -388,6 +392,9 @@ public class play_data : MonoBehaviour {
                 Hud.instance.Panel3.gameObject.SetActive(true);
                 message = true;
                 player_resource[whosturn, 1] -= 10;
+                if(player_resource[whosturn, 2] < 0){
+                	player_resource[whosturn, 2] = 0;
+                }
             	Hud.instance.instruction_title.text = "-10 resources :(";
                 Hud.instance.instruction_text.text = "I'm sorry\nAliens just robbed you for 10 water.";
                 Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = water[0];
@@ -419,6 +426,9 @@ public class play_data : MonoBehaviour {
                 Hud.instance.Panel3.gameObject.SetActive(true);
                 message = true;
                 player_resource[whosturn, 2] -= 10;
+                if(player_resource[whosturn, 2] < 0){
+                	player_resource[whosturn, 2] = 0;
+                }
             	Hud.instance.instruction_title.text = "-10 resources :(";
                 Hud.instance.instruction_text.text = "I'm sorry\nAliens just robbed you for 10 grass.";
                 Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = earth[0];
@@ -467,7 +477,7 @@ public class play_data : MonoBehaviour {
                 Hud.instance.Panel3.gameObject.SetActive(true);
                 message = true;
             	Hud.instance.instruction_title.text = "+1 tile :)";
-                Hud.instance.instruction_text.text = "Congratulations!\n You were gifted a new tile at column " + seed_col.ToString() + ", row " + seed_row.ToString() + "!";
+                Hud.instance.instruction_text.text = "Congratulations!\n You were gifted a new tile at column " + (seed_col + 1).ToString() + ", row " + (seed_row + 1).ToString() + "!";
                 tiles_owned[whosturn]++;
                 switch(tile_type[seed_col, seed_row]){
                     case type.Empty:
@@ -758,11 +768,18 @@ public class play_data : MonoBehaviour {
 	            Hud.instance.Panel3.gameObject.SetActive(true);
 	            message = true;
 	            Hud.instance.instruction_title.text = "You won!";
-	            Hud.instance.instruction_text.text = "Congratulations, player " + (whosturn + 1).ToString() + ", you have won the GridWars!";
+	            Hud.instance.instruction_text.text = "Congratulations, player " + (whosturn + 1).ToString() + ", you have won the GridWars!\nResetting the game in 5 seconds.";
 	            Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = empty[whosturn + 1];
+	            StartCoroutine (reset_level());		            
 	        }
 		}
 
+	}
+
+	IEnumerator reset_level(){
+		yield return new WaitForSeconds(5f);
+		SceneManager.LoadScene("scene_0");
+		// Application.LoadLevel("scene_0");
 	}
 
 	public void DoSuperAttack(int col, int row) {

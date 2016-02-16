@@ -1,3 +1,6 @@
+Minecraft Inspired Title Screen
+http://textcraft.net/
+
 Minecraft Font
 http://www.dafont.com/minecraft.font
 
@@ -27,3 +30,10 @@ https://www.freesound.org/people/edwin_p_manchester/sounds/3237/
 
 Whoosh
 https://www.freesound.org/people/ztrees1/sounds/134935/
+
+Terrain Tiles
+http://opengameart.org/content/toens-medieval-strategy-sprite-pack-v10-16x16
+
+GUI Assets
+http://opengameart.org/content/golden-ui-bigger-than-ever-edition
+
