@@ -18,6 +18,7 @@ public struct coordinate {
 public class play_data : MonoBehaviour {
     public static play_data instance;
     public bool game_start;
+    public bool message;
 	//Audio
 	public AudioSource audSource;
 	public AudioClip fireball;
@@ -63,6 +64,7 @@ public class play_data : MonoBehaviour {
     // Use this for initialization
     void Start () {
         game_start = false;
+        message = false;
         audSource = GetComponent<AudioSource> ();
 
         moves_remain = 2;
@@ -262,7 +264,7 @@ public class play_data : MonoBehaviour {
             }
         }
 
-        random_events();
+        // random_events();
 
 
 
@@ -421,36 +423,6 @@ public class play_data : MonoBehaviour {
     public void option_0()
     {
         moves_remain--;
-        if (owner[current_select_col, current_select_row] == -1) //one-time claim
-        {
-			audSource.pitch = Random.Range (lowPitchRange, highPitchRange);
-			audSource.PlayOneShot (claim, 1.5f);
-
-            owner[current_select_col, current_select_row] = whosturn;  
-            remaining[current_select_col, current_select_row] = 0;
-			int type_index = type2int(tile_type [current_select_col, current_select_row]);
-            if (type_index != -1)
-            {
-                tiles[current_select_col, current_select_row].DisplayScoreChange(5);
-                player_resource[whosturn, type_index] += 5;
-            }
-            tile_type[current_select_col, current_select_row] = type.Empty;
-            ++tiles_owned[whosturn];
-        }
-        else if (owner[current_select_col, current_select_row] == whosturn) //Fire Defense
-        {
-            DoDefense(type.Fire);
-        }
-        else //Fire attack
-        {
-			DoAttack (current_select_col, current_select_row, type.Fire, whosturn);
-        }
-        UpdateSelectableTiles();
-    }
-
-    public void option_1()
-    {
-        moves_remain--;
         if (owner[current_select_col, current_select_row] == -1) //long-term claim
         {
 			audSource.pitch = Random.Range (lowPitchRange, highPitchRange);
@@ -482,6 +454,36 @@ public class play_data : MonoBehaviour {
             }
 
         }
+        else if (owner[current_select_col, current_select_row] == whosturn) //Fire Defense
+        {
+            DoDefense(type.Fire);
+        }
+        else //Fire attack
+        {
+			DoAttack (current_select_col, current_select_row, type.Fire, whosturn);
+        }
+        UpdateSelectableTiles();
+    }
+
+    public void option_1()
+    {
+        moves_remain--;
+        if (owner[current_select_col, current_select_row] == -1) //one-time claim
+        {
+			audSource.pitch = Random.Range (lowPitchRange, highPitchRange);
+			audSource.PlayOneShot (claim, 1.5f);
+
+            owner[current_select_col, current_select_row] = whosturn;  
+            remaining[current_select_col, current_select_row] = 0;
+			int type_index = type2int(tile_type [current_select_col, current_select_row]);
+            if (type_index != -1)
+            {
+                tiles[current_select_col, current_select_row].DisplayScoreChange(5);
+                player_resource[whosturn, type_index] += 5;
+            }
+            tile_type[current_select_col, current_select_row] = type.Empty;
+            ++tiles_owned[whosturn];
+        }
         else if (owner[current_select_col, current_select_row] == whosturn)//Water Defense
         {
             DoDefense(type.Water);
@@ -508,12 +510,19 @@ public class play_data : MonoBehaviour {
 
     void DoDefense(type element)
     {
-        tiles[current_select_col, current_select_row].DisplayScoreChange(1);
-        audSource.pitch = 1.0f + defense[current_select_col, current_select_row] / 10f;
-        audSource.PlayOneShot(defend, 1.0f);
-        defense_type[current_select_col, current_select_row] = element;
-        defense[current_select_col, current_select_row]++;
-        player_resource[whosturn, type2int(element)] -= 1;
+    	audSource.pitch = 1.0f + defense[current_select_col, current_select_row] / 10f;
+	    audSource.PlayOneShot(defend, 1.0f);
+
+	    if(defense[current_select_col, current_select_row] < 5){
+            tiles[current_select_col, current_select_row].DisplayScoreChange(1);
+	        defense_type[current_select_col, current_select_row] = element;
+	        defense[current_select_col, current_select_row]++;
+	        player_resource[whosturn, type2int(element)] -= 1;
+	    }
+	    else{
+	    	tiles[current_select_col, current_select_row].DisplayScoreChange(0);
+	        player_resource[whosturn, type2int(element)] -= 1;
+	    }
     }
 
     public void Continue()
@@ -529,14 +538,6 @@ public class play_data : MonoBehaviour {
         Hud.instance.Panel3.gameObject.SetActive(false);
     }
 
-    /// <summary>
-    /// Performs an elemental attack onto a (an enemy's) tile.
-    /// :TODO: what if attacker does not have sufficient resoures to attack.
-    /// </summary>
-    /// <param name="def_col">Defender's column.</param>
-    /// <param name="def_row">Defender's row.</param>
-    /// <param name="element">Element of the attack.</param>
-    /// <param name="current_turn">Player index, for who's current turn.</param>
     void DoAttack(int def_col, int def_row, type element, int current_turn) {
 		//Audio
 		audSource.pitch = Random.Range (lowPitchRange, highPitchRange);
@@ -626,12 +627,6 @@ public class play_data : MonoBehaviour {
 		tiles[def_col, def_row].shake_delay = 0.5f;
 	}
 
-	/// <summary>
-	/// Performs the super attack!
-	/// Should be called from SuperWeaponSelector.
-	/// </summary>
-	/// <param name="col">target column</param>
-	/// <param name="row">target row</param>
 	public void DoSuperAttack(int col, int row) {
 		List<tile> targets = new List<tile>();
 		if (!HasTileAt (col, row))
@@ -656,12 +651,6 @@ public class play_data : MonoBehaviour {
 		}
 	}
 
-	/// <summary>
-	/// Determines whether this instance has tile at the specified column and row.
-	/// </summary>
-	/// <returns><c>true</c> if this instance has tile at the specified column and row; otherwise, <c>false</c>.</returns>
-	/// <param name="col">column of the board</param>
-	/// <param name="row">row of the board</param>
 	bool HasTileAt(int col, int row) {
 		return (col >= 0 && col < tiles.GetLength (0) && row >= 0 && row < tiles.GetLength (1));
 	}
@@ -680,24 +669,7 @@ public class play_data : MonoBehaviour {
         return -1;
     }
 
-	/// <summary>
-	/// Converts owner index integer into the owner's color.
-	/// </summary>
-	/// <returns>color representing owner</returns>
-	/// <param name="owner_number">owner index number</param>
 	static public Color OwnerIntToColor(int owner_number) {
-		switch (owner_number)
-		{
-		case 0:
-			return Color.green;
-		case 1:
-			// purple
-			return new Color(0.453f, 0.270f, 0.809f);
-		case 2:
-			return Color.red;
-		case 3:
-			return Color.yellow;
-		}
-		throw new UnityException ("Invalid owner number");
+		return Color.black;
 	}
 }
