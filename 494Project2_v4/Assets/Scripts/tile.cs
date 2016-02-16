@@ -17,7 +17,7 @@ public class tile : MonoBehaviour {
     public type defense_type;
     public int remaining;
     public Sprite[] sprites;
-
+	public TextMesh text;
 	// ???
     public float duration = 1f;
     public float alpha = 0f;
@@ -29,9 +29,10 @@ public class tile : MonoBehaviour {
 		audSource = GetComponent<AudioSource> ();
         
 		rb = GetComponents<Rigidbody> ()[0];
-        //row = (int)transform.position.y;
-        //col = (int)transform.position.x;
         sprites = Resources.LoadAll<Sprite>("terrain");
+		text = GetComponentInChildren<TextMesh> ();
+		text.color = Color.white;
+		text.gameObject.SetActive (false);
     }
 
     public Sprite get_sprite_by_name(string sprite_name){
@@ -120,6 +121,24 @@ public class tile : MonoBehaviour {
         blinker.GetComponent<Renderer>().material.color = blinker_color;
 
     }
+
+	public void DisplayScoreChange(int num){
+		if (num > 0)
+			text.text = "+" + num;
+		else
+			text.text = num.ToString();
+		text.gameObject.SetActive (true);
+		StartCoroutine (HideScoreChange ());
+	}
+
+	IEnumerator HideScoreChange(){
+		yield return new WaitForSeconds(0.5f);
+		text.color = Color.black;
+		yield return new WaitForSeconds(0.5f);
+		text.color = Color.white;
+		yield return new WaitForSeconds(0.5f);
+		text.gameObject.SetActive (false);
+	}
 
 	/// <summary>
 	/// To be called OnUpdate.

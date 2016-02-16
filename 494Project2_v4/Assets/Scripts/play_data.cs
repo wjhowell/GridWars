@@ -99,6 +99,8 @@ public class play_data : MonoBehaviour {
 		// }
 	}
 
+
+
     void SetupBoard(int cols, int rows)
     {
         owner = new int[cols, rows];
@@ -252,8 +254,10 @@ public class play_data : MonoBehaviour {
             owner[current_select_col, current_select_row] = whosturn;  
             remaining[current_select_col, current_select_row] = 0;
 			int type_index = type2int(tile_type [current_select_col, current_select_row]);
-			if (type_index != -1)
-				player_resource[whosturn, type_index] += 5;
+			if (type_index != -1) {
+				tiles [current_select_col, current_select_row].DisplayScoreChange (5);
+				player_resource [whosturn, type_index] += 5;
+			}
             tile_type[current_select_col, current_select_row] = type.Empty;
             ++tiles_owned[whosturn];
         }
@@ -509,4 +513,5 @@ public class play_data : MonoBehaviour {
 		}
 		throw new UnityException ("Invalid owner number");
 	}
+		
 }
