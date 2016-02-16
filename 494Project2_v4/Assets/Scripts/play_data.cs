@@ -468,6 +468,7 @@ public class play_data : MonoBehaviour {
                 message = true;
             	Hud.instance.instruction_title.text = "+1 tile :)";
                 Hud.instance.instruction_text.text = "Congratulations!\n You were gifted a new tile at column " + seed_col.ToString() + ", row " + seed_row.ToString() + "!";
+                tiles_owned[whosturn]++;
                 switch(tile_type[seed_col, seed_row]){
                     case type.Empty:
                         Hud.instance.Instruction_cube.GetComponent<SpriteRenderer>().sprite = empty[whosturn + 1];
